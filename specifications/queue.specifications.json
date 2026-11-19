@@ -113,6 +113,11 @@
         }
       ],
       "returns": "void"
+    },
+    "clear": {
+      "description": "Removes every item, waiting or being worked on, dispatching `onremove` for each and the condition event that follows, then deletes the database named by `storage`. Afterwards the queue lives in memory only and `persisted` is `false`. The promise resolves once the database is deleted, or at once without `storage`.",
+      "parameters": [],
+      "returns": "Promise<void>"
     }
   },
   "Events": {
