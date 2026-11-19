@@ -163,7 +163,7 @@ export class Queue<T extends object = Record<string, unknown>>
    * The item `take()` would hand out, without taking it; `null` when no item waits
    * @category Operations
    */
-  public peek = (): Item<T> | null => null;
+  public peek = (): Item<T> | null => this.waiting[0];
 
   /**
    * Compare two waiting items: in a priority queue the higher priority comes first,
