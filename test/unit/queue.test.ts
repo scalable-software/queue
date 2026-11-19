@@ -1280,3 +1280,16 @@ events(Event.ON_REMOVE, () => {
     });
   });
 });
+
+events(Event.ON_PUT_BACK, () => {
+  and("a queue is created", () => {
+    let queue: Queue;
+    beforeEach(() => {
+      queue = new Queue();
+    });
+
+    then("`queue.onputback` setter exists", () => {
+      expect(hasSetter(queue, Event.ON_PUT_BACK)).toBe(true);
+    });
+  });
+});

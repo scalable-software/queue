@@ -309,6 +309,14 @@ metadata(Metadata.EVENT, () => {
           expect(Event.ON_REMOVE).toBe("onremove");
         });
 
+        then("`Event.ON_PUT_BACK` exists", () => {
+          expect(Event.ON_PUT_BACK).toBeDefined();
+        });
+
+        then("`Event.ON_PUT_BACK` is `onputback`", () => {
+          expect(Event.ON_PUT_BACK).toBe("onputback");
+        });
+
         then("no event name is taken by `EventTarget`", () => {
           const taken = Object.values(Event).filter(
             (name) => name in EventTarget.prototype
