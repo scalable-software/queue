@@ -5,6 +5,10 @@
   "keywords": [
     "web component queue addon"
   ],
+  "files": [
+    "dist",
+    "!dist/.gitkeep"
+  ],
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
