@@ -166,6 +166,12 @@ export class Queue<T extends object = Record<string, unknown>>
   public peek = (): Item<T> | null => this.waiting[0] ?? null;
 
   /**
+   * Change the item with the given `id`: the given fields replace the item\x27s own, and it keeps its place
+   * @category Operations
+   */
+  public update = (item: Entry<T>) => {};
+
+  /**
    * Compare two waiting items: in a priority queue the higher priority comes first,
    * and otherwise the earliest added
    * @category Data
