@@ -44,3 +44,8 @@ component reacts to the queue instead of checking it, and never builds queue log
 
 As a **host component**, when I have work to be done, I want to put an item in the queue,
 with a priority when it is more urgent than others, so that it waits its turn.
+
+### STORY: Take the Next Item
+
+As a **host component**, when I am ready for the next piece of work, I want to take the next
+waiting item and have it marked as being worked on, so that no item is handed out twice.
