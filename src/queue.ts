@@ -154,6 +154,7 @@ export class Queue<T extends object = Record<string, unknown>>
     // Dispatch
     const detail = { condition };
     condition === Condition.WAITING && this._dispatch(Event.ON_WAITING, detail);
+    condition === Condition.BUSY && this._dispatch(Event.ON_BUSY, detail);
   }
 
   /**
