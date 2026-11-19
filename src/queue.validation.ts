@@ -53,4 +53,12 @@ export class Validate {
 
     return value as Entry;
   };
+
+  /**
+   * Validate the id of an item
+   * @category Validation
+   */
+  public static id = (value: unknown) => {
+    return value as string;
+  };
 }
