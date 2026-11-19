@@ -1160,3 +1160,16 @@ events(Event.ON_TAKE, () => {
     });
   });
 });
+
+events(Event.ON_UPDATE, () => {
+  and("a queue is created", () => {
+    let queue: Queue;
+    beforeEach(() => {
+      queue = new Queue();
+    });
+
+    then("`queue.onupdate` setter exists", () => {
+      expect(hasSetter(queue, Event.ON_UPDATE)).toBe(true);
+    });
+  });
+});
