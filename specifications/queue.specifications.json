@@ -1,17 +1,17 @@
 {
   "Component": "Queue",
   "Package": "queue",
-  "Description": "The Queue is a reactive queue that a host component creates for itself and keeps in a private field. It holds items with an id and a priority, hands them out in order, keeps them in IndexedDB so they survive a reload, and dispatches an event for every change. It is an EventTarget-based add-on rather than a custom element: it declares no Tag, Composition or Gestures. An item is the host's own object, `{ id, priority } & T`: the queue owns `id` and `priority`, and keeps every other field as the host gave it.",
+  "Description": "The Queue is a reactive queue that a host component creates for itself and keeps in a private field. It holds items with an id and a priority, hands them out in order, keeps them in IndexedDB so they survive a reload, and dispatches an event for every change. The `storage` option names the IndexedDB database that keeps the queue: `new Queue({ order, storage })` restores the items it held before, and keeps the database in step behind every change, while every operation acts in memory at once. Without `storage`, the queue lives in memory only. Each `storage` is a database of its own, so queues with different names never mix; a `storage` that is not a non-empty string throws `Invalid options value: storage is invalid`. It is an EventTarget-based add-on rather than a custom element: it declares no Tag, Composition or Gestures. An item is the host's own object, `{ id, priority } & T`: the queue owns `id` and `priority`, and keeps every other field as the host gave it.",
   "Data": {
     "waiting": {
       "type": "Items",
-      "description": "The items that wait to be handed out, as a list of `Item`, in the order `take()` hands them out: the order they were added, or, in a priority queue, the highest `priority` first and the earliest added first among equals. An item that is put back or changed keeps the place its first addition gave it. Each item is the stored, frozen copy.",
+      "description": "The items that wait to be handed out, as a list of `Item`, in the order `take()` hands them out: the order they were added, or, in a priority queue, the highest `priority` first and the earliest added first among equals. An item that is put back or changed keeps the place its first addition gave it. Each item is the stored, frozen copy. Restored items keep the place they had, and come before the items added since the queue was created.",
       "default": [],
       "readonly": true
     },
     "working": {
       "type": "Items",
-      "description": "The items that have been taken and are being worked on, as a list of `Item`, in the order they were taken. An item stays here until it is removed or put back. Each item is the stored, frozen copy.",
+      "description": "The items that have been taken and are being worked on, as a list of `Item`, in the order they were taken. An item stays here until it is removed or put back. Each item is the stored, frozen copy. Restored items that were being worked on come back here, as they were: the host decides whether to put them back.",
       "default": [],
       "readonly": true
     }
@@ -36,6 +36,26 @@
         "busy"
       ],
       "default": "empty",
+      "readonly": true
+    },
+    "ready": {
+      "type": "Ready",
+      "description": "Whether the queue has its stored items back. `false` when the queue is created; `true` once its stored items are restored, after the constructor has returned, with or without `storage`. Items added before then are kept, after the restored items; a restored item whose id the queue already holds is not restored. Operations work at any time.",
+      "values": [
+        false,
+        true
+      ],
+      "default": false,
+      "readonly": true
+    },
+    "persisted": {
+      "type": "Persisted",
+      "description": "Whether the queue's items survive a reload: `true` once the database named by `storage` is open, and `false` without `storage`, after `clear()`, or when the browser refuses to open or to write the database. When it refuses, the queue goes on in memory and stops writing.",
+      "values": [
+        false,
+        true
+      ],
+      "default": false,
       "readonly": true
     }
   },
@@ -93,6 +113,11 @@
         }
       ],
       "returns": "void"
+    },
+    "clear": {
+      "description": "Removes every item, waiting or being worked on, dispatching `onremove` for each and the condition event that follows, then deletes the database named by `storage`. Afterwards the queue lives in memory only and `persisted` is `false`. The promise resolves once the database is deleted, or at once without `storage`.",
+      "parameters": [],
+      "returns": "Promise<void>"
     }
   },
   "Events": {
@@ -219,6 +244,42 @@
               "type": "Condition",
               "values": [
                 "busy"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    "onready": {
+      "description": "Dispatched once, when `ready` becomes `true`, before the condition event that the restored items cause. No `onadd` is dispatched for a restored item.",
+      "parameters": [
+        {
+          "name": "detail",
+          "type": "object",
+          "description": "Contains the new ready state of the queue.",
+          "properties": {
+            "ready": {
+              "type": "Ready",
+              "values": [
+                true
+              ]
+            }
+          }
+        }
+      ]
+    },
+    "onunavailable": {
+      "description": "Dispatched once, when the browser refuses to open or to write the database named by `storage`: the items will not survive a reload. Not dispatched for a queue without `storage`, nor after `clear()`.",
+      "parameters": [
+        {
+          "name": "detail",
+          "type": "object",
+          "description": "Contains the new persisted state of the queue.",
+          "properties": {
+            "persisted": {
+              "type": "Persisted",
+              "values": [
+                false
               ]
             }
           }

@@ -9,7 +9,9 @@
  */
 export const State = {
   ORDER: "order",
-  CONDITION: "condition"
+  CONDITION: "condition",
+  READY: "ready",
+  PERSISTED: "persisted"
 } as const;
 
 /**
@@ -103,11 +105,24 @@ export type Entry<T extends object = Record<string, unknown>> = T & {
 export type Items<T extends object = Record<string, unknown>> = readonly Item<T>[];
 
 /**
+ * Value domain of the `ready` state: whether the queue has its stored items back
+ * @category Metadata: State
+ */
+export type Ready = boolean;
+
+/**
+ * Value domain of the `persisted` state: whether the queue's items survive a reload
+ * @category Metadata: State
+ */
+export type Persisted = boolean;
+
+/**
  * The options a host component gives the queue when it creates it; read once, not kept
  * @category Configuration
  */
 export type Options = {
   order?: Order;
+  storage?: string;
 };
 
 /**
@@ -121,7 +136,8 @@ export const Operation = {
   PEEK: "peek",
   UPDATE: "update",
   REMOVE: "remove",
-  PUT_BACK: "putBack"
+  PUT_BACK: "putBack",
+  CLEAR: "clear"
 } as const;
 
 /**
@@ -143,7 +159,9 @@ export const Event = {
   ON_PUT_BACK: "onputback",
   ON_WAITING: "onwaiting",
   ON_BUSY: "onbusy",
-  ON_EMPTY: "onempty"
+  ON_EMPTY: "onempty",
+  ON_READY: "onready",
+  ON_UNAVAILABLE: "onunavailable"
 } as const;
 
 /**

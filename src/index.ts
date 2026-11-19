@@ -13,6 +13,8 @@ export type {
   Items,
   Entry,
   Options,
+  Ready,
+  Persisted,
   States,
   Data,
   Operations,

@@ -11,6 +11,34 @@ import {
 
 import type { Item } from "@scalable.software/queue";
 
+// Resolves once the tasks queued so far have run
+const settle = () => new Promise((resolve) => setTimeout(resolve));
+
+// A database name of its own, for one spec
+const unique = () => `queue-${crypto.randomUUID()}`;
+
+// Resolves once `queue` has its stored items back
+const ready = (queue: Queue) =>
+  queue.ready
+    ? Promise.resolve()
+    : new Promise<void>((resolve) =>
+        queue.addEventListener(Event.ON_READY, () => resolve(), { once: true })
+      );
+
+// A new queue with `storage`, once it has its stored items back
+const reopen = async (storage: string) => {
+  const queue = new Queue({ storage });
+  await ready(queue);
+  return queue;
+};
+
+// Deletes the database named `name`
+const drop = (name: string) =>
+  new Promise<void>((resolve) => {
+    const request = indexedDB.deleteDatabase(name);
+    request.onsuccess = request.onerror = request.onblocked = () => resolve();
+  });
+
 // Configuration
 given("Queue imported", () => {
   then("Queue is defined", () => {
@@ -124,6 +152,21 @@ state(State.ORDER, () => {
       expect(error.message).toBe("Invalid options value: order is invalid");
     });
   });
+
+  given("a queue is created with `{ storage: \"\" }`", () => {
+    let error: Error;
+    beforeEach(() => {
+      try {
+        new Queue({ storage: "" });
+      } catch (err) {
+        error = err as Error;
+      }
+    });
+
+    then("error message is 'Invalid options value: storage is invalid'", () => {
+      expect(error?.message).toBe("Invalid options value: storage is invalid");
+    });
+  });
 });
 
 state(State.CONDITION, () => {
@@ -204,6 +247,156 @@ state(State.CONDITION, () => {
   });
 });
 
+state(State.READY, () => {
+  given("a queue is created", () => {
+    let queue: Queue;
+    beforeEach(() => {
+      queue = new Queue();
+    });
+
+    then("`queue.ready` getter exists", () => {
+      expect(hasGetter(queue, State.READY)).toBe(true);
+    });
+
+    then("`queue.ready` is `false`", () => {
+      expect(queue.ready).toBe(false);
+    });
+
+    then("assigning `queue.ready` does not compile", () => {
+      const assign = () => {
+        // @ts-expect-error: `ready` is set by the queue
+        queue.ready = true;
+      };
+      expect(assign).toEqual(jasmine.any(Function));
+    });
+  });
+
+  given("a queue is created, and the constructor has returned", () => {
+    let queue: Queue;
+    beforeEach(async () => {
+      queue = new Queue();
+      await settle();
+    });
+
+    then("`queue.ready` is `true`", () => {
+      expect(queue.ready).toBe(true);
+    });
+  });
+
+  given("a queue with `storage` is ready, and `a` and `b` are added", () => {
+    let storage: string;
+    let second: Queue;
+    beforeEach(async () => {
+      storage = unique();
+      const first = await reopen(storage);
+      first.add({ id: "a" });
+      first.add({ id: "b" });
+    });
+    afterEach(() => drop(storage));
+
+    when("a second queue with the same `storage` adds `c` before it is ready", () => {
+      beforeEach(async () => {
+        second = new Queue({ storage });
+        second.add({ id: "c" });
+        await ready(second);
+      });
+
+      then("its `waiting` holds `a`, `b`, then `c`", () => {
+        expect(second.waiting.map(({ id }) => id)).toEqual(["a", "b", "c"]);
+      });
+
+      when("a third queue with the same `storage` is ready", () => {
+        let third: Queue;
+        beforeEach(async () => {
+          third = await reopen(storage);
+        });
+
+        then("its `waiting` holds `a`, `b`, then `c`", () => {
+          expect(third.waiting.map(({ id }) => id)).toEqual(["a", "b", "c"]);
+        });
+      });
+    });
+  });
+
+  given("a queue with `storage` holds `a` with `file` `report.pdf`, and `b`", () => {
+    let storage: string;
+    let second: Queue;
+    beforeEach(async () => {
+      storage = unique();
+      const first = await reopen(storage);
+      first.add({ id: "a", file: "report.pdf" });
+      first.add({ id: "b" });
+    });
+    afterEach(() => drop(storage));
+
+    when("a second queue with the same `storage` adds `a` with `file` `summary.pdf` before it is ready", () => {
+      beforeEach(async () => {
+        second = new Queue({ storage });
+        second.add({ id: "a", file: "summary.pdf" });
+        await ready(second);
+      });
+
+      then("its `waiting` holds `b`, then the `a` it added", () => {
+        expect(second.waiting).toEqual([
+          { id: "b", priority: Priority.LOWEST },
+          { id: "a", file: "summary.pdf", priority: Priority.LOWEST }
+        ]);
+      });
+    });
+  });
+});
+
+state(State.PERSISTED, () => {
+  given("a queue is created", () => {
+    let queue: Queue;
+    beforeEach(() => {
+      queue = new Queue();
+    });
+
+    then("`queue.persisted` getter exists", () => {
+      expect(hasGetter(queue, State.PERSISTED)).toBe(true);
+    });
+
+    then("`queue.persisted` is `false`", () => {
+      expect(queue.persisted).toBe(false);
+    });
+  });
+
+  given("a queue with `storage` is ready", () => {
+    let storage: string;
+    let queue: Queue;
+    beforeEach(async () => {
+      storage = unique();
+      queue = await reopen(storage);
+    });
+    afterEach(() => drop(storage));
+
+    then("`queue.persisted` is `true`", () => {
+      expect(queue.persisted).toBe(true);
+    });
+  });
+
+  given("a queue without `storage` is ready", () => {
+    let queue: Queue;
+    beforeEach(async () => {
+      queue = new Queue();
+      await ready(queue);
+    });
+
+    then("`queue.persisted` is `false`", () => {
+      expect(queue.persisted).toBe(false);
+    });
+
+    then("assigning `queue.persisted` does not compile", () => {
+      const assign = () => {
+        // @ts-expect-error: `persisted` is set by the queue
+        queue.persisted = true;
+      };
+      expect(assign).toEqual(jasmine.any(Function));
+    });
+  });
+});
+
 // Data
 data(Datum.WAITING, () => {
   given("a queue is created", () => {
@@ -273,6 +466,135 @@ data(Datum.WAITING, () => {
       });
     });
   });
+
+  given("a queue with `storage` is ready, and `a` (7) and `b` are added", () => {
+    let storage: string;
+    let first: Queue;
+    let second: Queue;
+    beforeEach(async () => {
+      storage = unique();
+      first = new Queue({ storage });
+      await ready(first);
+      first.add({ id: "a", priority: 7, file: "report.pdf" });
+      first.add({ id: "b" });
+    });
+    afterEach(() => drop(storage));
+
+    when("a second queue with the same `storage` is ready", () => {
+      beforeEach(async () => {
+        second = new Queue({ storage });
+        await ready(second);
+      });
+
+      then("its `waiting` holds `a` and `b`, as they were", () => {
+        expect(second.waiting).toEqual([
+          { id: "a", priority: 7, file: "report.pdf" },
+          { id: "b", priority: Priority.LOWEST }
+        ]);
+      });
+    });
+  });
+
+  given("a queue with `storage` is ready, and `a` is added, taken and put back", () => {
+    let storage: string;
+    let second: Queue;
+    beforeEach(async () => {
+      storage = unique();
+      const first = await reopen(storage);
+      first.add({ id: "a" });
+      first.take();
+      first.putBack("a");
+      second = await reopen(storage);
+    });
+    afterEach(() => drop(storage));
+
+    then("a second queue with the same `storage` has `a` in `waiting`", () => {
+      expect(second.waiting.map(({ id }) => id)).toEqual(["a"]);
+    });
+  });
+
+  given("a queue with `storage` is ready, and `a` is added and changed", () => {
+    let storage: string;
+    let second: Queue;
+    beforeEach(async () => {
+      storage = unique();
+      const first = await reopen(storage);
+      first.add({ id: "a", file: "report.pdf" });
+      first.update({ id: "a", file: "summary.pdf", priority: 9 });
+      second = await reopen(storage);
+    });
+    afterEach(() => drop(storage));
+
+    then("a second queue with the same `storage` has `a` as it was changed", () => {
+      expect(second.waiting).toEqual([{ id: "a", file: "summary.pdf", priority: 9 }]);
+    });
+  });
+
+  given("a queue with `storage` is ready, `a` and `b` are added, `b` is taken, and both are removed", () => {
+    let storage: string;
+    let second: Queue;
+    beforeEach(async () => {
+      storage = unique();
+      const first = await reopen(storage);
+      first.add({ id: "a" });
+      first.add({ id: "b" });
+      first.remove("a");
+      first.take();
+      first.remove("b");
+      second = await reopen(storage);
+    });
+    afterEach(() => drop(storage));
+
+    then("a second queue with the same `storage` has no items waiting", () => {
+      expect(second.waiting).toEqual([]);
+    });
+
+    then("a second queue with the same `storage` has no items being worked on", () => {
+      expect(second.working).toEqual([]);
+    });
+  });
+
+  given("a queue with `storage` `uploads` holds `a`, and one with `storage` `downloads` holds `b`", () => {
+    let uploads: string;
+    let downloads: string;
+    let second: Queue;
+    beforeEach(async () => {
+      uploads = unique();
+      downloads = unique();
+      (await reopen(uploads)).add({ id: "a" });
+      (await reopen(downloads)).add({ id: "b" });
+      second = await reopen(uploads);
+    });
+    afterEach(async () => {
+      await drop(uploads);
+      await drop(downloads);
+    });
+
+    then("a second queue with `storage` `uploads` holds only `a`", () => {
+      expect(second.waiting.map(({ id }) => id)).toEqual(["a"]);
+    });
+  });
+
+  given("a queue with `{ order: Order.PRIORITY }` and `storage` holds `a` (5), `b` (9) and `c` (5)", () => {
+    let storage: string;
+    let second: Queue;
+    beforeEach(async () => {
+      storage = unique();
+      const first = new Queue({ order: Order.PRIORITY, storage });
+      await ready(first);
+      first.add({ id: "a", priority: 5 });
+      first.add({ id: "b", priority: 9 });
+      first.add({ id: "c", priority: 5 });
+      second = new Queue({ order: Order.PRIORITY, storage });
+      await ready(second);
+      second.add({ id: "d", priority: 5 });
+    });
+    afterEach(() => drop(storage));
+
+    then("a second such queue that adds `d` (5) holds `b`, `a`, `c`, then `d`", () => {
+      expect(second.waiting.map(({ id }) => id)).toEqual(["b", "a", "c", "d"]);
+    });
+  });
 });
 
 data(Datum.WORKING, () => {
@@ -288,6 +610,30 @@ data(Datum.WORKING, () => {
 
     then("`queue.working` is empty", () => {
       expect(queue.working).toEqual([]);
+    });
+  });
+
+  given("a queue with `storage` is ready, `a` and `b` are added, and `a` is taken", () => {
+    let storage: string;
+    let second: Queue;
+    beforeEach(async () => {
+      storage = unique();
+      const first = new Queue({ storage });
+      await ready(first);
+      first.add({ id: "a" });
+      first.add({ id: "b" });
+      first.take();
+      second = new Queue({ storage });
+      await ready(second);
+    });
+    afterEach(() => drop(storage));
+
+    then("a second queue with the same `storage` has `a` in `working`", () => {
+      expect(second.working.map(({ id }) => id)).toEqual(["a"]);
+    });
+
+    then("a second queue with the same `storage` has `b` in `waiting`", () => {
+      expect(second.waiting.map(({ id }) => id)).toEqual(["b"]);
     });
   });
 });
@@ -1002,6 +1348,121 @@ operation(Operation.PUT_BACK, () => {
   });
 });
 
+operation(Operation.CLEAR, () => {
+  and("a queue is created", () => {
+    let queue: Queue;
+    beforeEach(() => {
+      queue = new Queue();
+    });
+
+    then("`queue.clear` exists", () => {
+      expect(queue.clear).toBeDefined();
+    });
+  });
+
+  and("a queue holds `a` waiting and `b` being worked on, and records its events", () => {
+    let queue: Queue;
+    let order: string[];
+    let removed: string[];
+    beforeEach(async () => {
+      queue = new Queue();
+      await ready(queue);
+      queue.add({ id: "a" });
+      queue.add({ id: "b" });
+      queue.take();
+      order = [];
+      removed = [];
+      Object.values(Event).forEach((name) =>
+        queue.addEventListener(name, (event) => order.push(event.type))
+      );
+      queue.onremove = (event) => removed.push((event as CustomEvent).detail.item.id);
+    });
+
+    when("`queue.clear()` is invoked and settles", () => {
+      beforeEach(async () => {
+        await queue.clear();
+      });
+
+      then("`queue.waiting` is empty", () => {
+        expect(queue.waiting).toEqual([]);
+      });
+
+      then("`queue.working` is empty", () => {
+        expect(queue.working).toEqual([]);
+      });
+
+      then("`onremove` is dispatched for `b` and `a`", () => {
+        expect(removed.sort()).toEqual(["a", "b"]);
+      });
+
+      then("the last event is `onempty`", () => {
+        expect(order[order.length - 1]).toBe(Event.ON_EMPTY);
+      });
+    });
+  });
+
+  and("a queue with `storage` is ready, and holds `a`", () => {
+    let storage: string;
+    let queue: Queue;
+    const exists = async () =>
+      (await indexedDB.databases()).some(({ name }) => name === storage);
+    beforeEach(async () => {
+      storage = unique();
+      queue = await reopen(storage);
+      queue.add({ id: "a" });
+    });
+    afterEach(() => drop(storage));
+
+    when("`queue.clear()` is invoked and settles", () => {
+      beforeEach(async () => {
+        await queue.clear();
+      });
+
+      then("the database named by `storage` no longer exists", async () => {
+        expect(await exists()).toBe(false);
+      });
+
+      then("`queue.persisted` is `false`", () => {
+        expect(queue.persisted).toBe(false);
+      });
+
+      when("`b` is added", () => {
+        beforeEach(async () => {
+          queue.add({ id: "b" });
+          await settle();
+        });
+
+        then("`queue.waiting` holds `b`", () => {
+          expect(queue.waiting.map(({ id }) => id)).toEqual(["b"]);
+        });
+
+        then("the database named by `storage` still does not exist", async () => {
+          expect(await exists()).toBe(false);
+        });
+      });
+    });
+  });
+
+  and("a queue with `storage` holds `a`, and `queue.onunavailable` is assigned a listener", () => {
+    let storage: string;
+    let onunavailable: jasmine.Spy;
+    beforeEach(async () => {
+      storage = unique();
+      const queue = await reopen(storage);
+      queue.add({ id: "a" });
+      onunavailable = jasmine.createSpy("onunavailable");
+      queue.onunavailable = onunavailable;
+      await queue.clear();
+      await settle();
+    });
+    afterEach(() => drop(storage));
+
+    then("`queue.clear()` does not call the listener", () => {
+      expect(onunavailable).not.toHaveBeenCalled();
+    });
+  });
+});
+
 // Event
 
 events(Event.ON_ADD, () => {
@@ -1499,6 +1960,197 @@ events(Event.ON_EMPTY, () => {
           Event.ON_EMPTY
         ]);
       });
+    });
+  });
+});
+
+events(Event.ON_READY, () => {
+  and("a queue is created", () => {
+    let queue: Queue;
+    beforeEach(() => {
+      queue = new Queue();
+    });
+
+    then("`queue.onready` setter exists", () => {
+      expect(hasSetter(queue, Event.ON_READY)).toBe(true);
+    });
+  });
+
+  and("a queue is created, and `queue.onready` is assigned a listener", () => {
+    let queue: Queue;
+    let onready: jasmine.Spy;
+    beforeEach(async () => {
+      queue = new Queue();
+      onready = jasmine.createSpy("onready");
+      queue.onready = onready;
+      await settle();
+    });
+
+    then("the listener is called once, with `detail.ready` `true`", () => {
+      expect(onready).toHaveBeenCalledOnceWith(
+        jasmine.objectContaining({ detail: { ready: true } })
+      );
+    });
+  });
+
+  and("a queue with `storage` holds `a`, and a second queue with the same `storage` records its events", () => {
+    let storage: string;
+    let order: string[];
+    beforeEach(async () => {
+      storage = unique();
+      const first = await reopen(storage);
+      first.add({ id: "a" });
+      const second = new Queue({ storage });
+      order = [];
+      Object.values(Event).forEach((name) =>
+        second.addEventListener(name, (event) => order.push(event.type))
+      );
+      await ready(second);
+    });
+    afterEach(() => drop(storage));
+
+    then("the events are `onready`, then `onwaiting`, and no `onadd`", () => {
+      expect(order).toEqual([Event.ON_READY, Event.ON_WAITING]);
+    });
+  });
+});
+
+events(Event.ON_UNAVAILABLE, () => {
+  and("a queue is created", () => {
+    let queue: Queue;
+    beforeEach(() => {
+      queue = new Queue();
+    });
+
+    then("`queue.onunavailable` setter exists", () => {
+      expect(hasSetter(queue, Event.ON_UNAVAILABLE)).toBe(true);
+    });
+  });
+
+  and("the browser refuses to open a database", () => {
+    beforeEach(() => {
+      spyOn(indexedDB, "open").and.throwError(new DOMException("refused", "SecurityError"));
+    });
+
+    when("a queue with `storage` is created, and `queue.onunavailable` is assigned a listener", () => {
+      let queue: Queue;
+      let onunavailable: jasmine.Spy;
+      let onready: jasmine.Spy;
+      beforeEach(async () => {
+        queue = new Queue({ storage: unique() });
+        onunavailable = jasmine.createSpy("onunavailable");
+        onready = jasmine.createSpy("onready");
+        queue.onunavailable = onunavailable;
+        queue.onready = onready;
+        await settle();
+      });
+
+      then("the listener is called once, with `detail.persisted` `false`", () => {
+        expect(onunavailable).toHaveBeenCalledOnceWith(
+          jasmine.objectContaining({ detail: { persisted: false } })
+        );
+      });
+
+      then("`queue.persisted` is `false`", () => {
+        expect(queue.persisted).toBe(false);
+      });
+
+      then("`onready` is still dispatched", () => {
+        expect(onready).toHaveBeenCalledTimes(1);
+      });
+
+      when("`a` is added", () => {
+        beforeEach(() => {
+          queue.add({ id: "a" });
+        });
+
+        then("`queue.waiting` holds `a`", () => {
+          expect(queue.waiting.map(({ id }) => id)).toEqual(["a"]);
+        });
+      });
+    });
+  });
+
+  and("a queue with `storage` is ready, and `queue.onunavailable` is assigned a listener", () => {
+    let storage: string;
+    let queue: Queue;
+    let onunavailable: jasmine.Spy;
+    beforeEach(async () => {
+      storage = unique();
+      queue = await reopen(storage);
+      onunavailable = jasmine.createSpy("onunavailable");
+      queue.onunavailable = onunavailable;
+    });
+    afterEach(() => drop(storage));
+
+    when("the browser refuses to write, and `a` then `b` are added", () => {
+      beforeEach(async () => {
+        spyOn(IDBDatabase.prototype, "transaction").and.throwError(
+          new DOMException("refused", "QuotaExceededError")
+        );
+        queue.add({ id: "a" });
+        queue.add({ id: "b" });
+        await settle();
+      });
+
+      then("the listener is called once, with `detail.persisted` `false`", () => {
+        expect(onunavailable).toHaveBeenCalledOnceWith(
+          jasmine.objectContaining({ detail: { persisted: false } })
+        );
+      });
+
+      then("`queue.persisted` is `false`", () => {
+        expect(queue.persisted).toBe(false);
+      });
+
+      then("`queue.waiting` holds `a` and `b`", () => {
+        expect(queue.waiting.map(({ id }) => id)).toEqual(["a", "b"]);
+      });
+    });
+  });
+
+  and("the browser opens a database but refuses to read it", () => {
+    let storage: string;
+    beforeEach(() => {
+      storage = unique();
+      spyOn(IDBDatabase.prototype, "transaction").and.throwError(
+        new DOMException("refused", "InvalidStateError")
+      );
+    });
+    afterEach(() => drop(storage));
+
+    when("a queue with `storage` is created, and `queue.onunavailable` is assigned a listener", () => {
+      let queue: Queue;
+      let onunavailable: jasmine.Spy;
+      beforeEach(async () => {
+        queue = new Queue({ storage });
+        onunavailable = jasmine.createSpy("onunavailable");
+        queue.onunavailable = onunavailable;
+        await Promise.race([ready(queue), new Promise((r) => setTimeout(r, 500))]);
+      });
+
+      then("the listener is called once", () => {
+        expect(onunavailable).toHaveBeenCalledTimes(1);
+      });
+
+      then("`queue.ready` is `true`", () => {
+        expect(queue.ready).toBe(true);
+      });
+    });
+  });
+
+  and("a queue without `storage` is created, and `queue.onunavailable` is assigned a listener", () => {
+    let onunavailable: jasmine.Spy;
+    beforeEach(async () => {
+      const queue = new Queue();
+      onunavailable = jasmine.createSpy("onunavailable");
+      queue.onunavailable = onunavailable;
+      await ready(queue);
+      queue.add({ id: "a" });
+    });
+
+    then("the listener is not called", () => {
+      expect(onunavailable).not.toHaveBeenCalled();
     });
   });
 });

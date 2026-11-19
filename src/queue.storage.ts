@@ -1,0 +1,161 @@
+/**
+ * @module Queue
+ */
+
+import type { Item } from "./queue.meta.js";
+
+/**
+ * An item as the queue stores it: with when it was added, and whether it is being worked on
+ * @category Storage
+ * @hidden
+ */
+export type Stored<T extends object = Record<string, unknown>> = {
+  id: string;
+  item: Item<T>;
+  added: number;
+  working: boolean;
+};
+
+/**
+ * The object store that holds the items, one record for each, keyed by id
+ * @hidden
+ */
+const ITEMS = "items";
+
+/**
+ * The version of the stored format
+ * @hidden
+ */
+const VERSION = 1;
+
+/**
+ * Keeps the items of one queue in the IndexedDB database named after its `storage`
+ * @category Storage
+ * @hidden
+ */
+export class Storage<T extends object = Record<string, unknown>> {
+  /**
+   * The open database; every read and write waits for it, in the order it was asked for
+   * @hidden
+   */
+  private _database: Promise<IDBDatabase | null>;
+
+  /**
+   * Told once when the browser refuses the database; nothing is read or written afterwards
+   * @hidden
+   */
+  private _onfail: () => void;
+
+  /**
+   * Whether the browser has refused the database
+   * @hidden
+   */
+  private _failed = false;
+
+  /**
+   * The name of the database
+   * @hidden
+   */
+  private _name: string;
+
+  /**
+   * Open the database named `name`, creating it the first time
+   * @param onfail - Told once when the browser refuses to open or to write the database
+   */
+  constructor(name: string, onfail: () => void) {
+    this._onfail = onfail;
+    this._name = name;
+    this._database = this._open(name).catch(this._fail);
+  }
+
+  /**
+   * Every stored item
+   */
+  public read = async (): Promise<Stored<T>[]> => {
+    const database = await this._database;
+    if (!database) return [];
+    try {
+      return await this._request<Stored<T>[]>(
+        database.transaction(ITEMS, "readonly").objectStore(ITEMS).getAll()
+      );
+    } catch {
+      this._fail();
+      return [];
+    }
+  };
+
+  /**
+   * Store items, replacing the records with the same ids
+   */
+  public put = (...records: Stored<T>[]) =>
+    this._write((store) => records.forEach((record) => store.put(record)));
+
+  /**
+   * Remove the stored item with the given id
+   */
+  public delete = (id: string) => this._write((store) => store.delete(id));
+
+  /**
+   * Delete the database, after every earlier read and write; nothing is written afterwards
+   */
+  public drop = async (): Promise<void> => {
+    const database = await this._database;
+    this._database = Promise.resolve(null);
+    database?.close();
+    await this._request(indexedDB.deleteDatabase(this._name)).catch(() => {});
+  };
+
+  /**
+   * Write to the items, after every earlier read and write; a write the browser refuses,
+   * at once or when its transaction ends, fails the database
+   * @hidden
+   */
+  private _write = (change: (store: IDBObjectStore) => void) => {
+    this._database = this._database.then((database) => {
+      if (!database) return null;
+      try {
+        const transaction = database.transaction(ITEMS, "readwrite");
+        transaction.onabort = this._fail;
+        change(transaction.objectStore(ITEMS));
+        return database;
+      } catch {
+        return this._fail();
+      }
+    });
+  };
+
+  /**
+   * Open the database, creating its object store the first time, and close it when another
+   * connection wants to delete or upgrade it
+   * @hidden
+   */
+  private _open = async (name: string): Promise<IDBDatabase> => {
+    const request = indexedDB.open(name, VERSION);
+    request.onupgradeneeded = () =>
+      request.result.createObjectStore(ITEMS, { keyPath: "id" });
+    return this._request<IDBDatabase>(request).then((database) => {
+      database.onversionchange = () => database.close();
+      return database;
+    });
+  };
+
+  /**
+   * Tell the queue that the browser refused the database
+   * @hidden
+   */
+  private _fail = (): null => {
+    this._failed || this._onfail();
+    this._failed = true;
+    return null;
+  };
+
+  /**
+   * The result of a request, once it succeeds
+   * @hidden
+   */
+  private _request = <R>(request: IDBRequest): Promise<R> =>
+    new Promise<R>((resolve, reject) => {
+      request.onsuccess = () => resolve(request.result as R);
+      request.onerror = () => reject(request.error);
+    });
+}

@@ -4,10 +4,13 @@
 
 // Metadata
 import { Order, Condition, Priority, Event } from "./queue.meta.js";
-import type { Entry, Item, Items, Meta, Options } from "./queue.meta.js";
+import type { Entry, Item, Items, Meta, Options, Persisted, Ready } from "./queue.meta.js";
 
 // Validation
 import { Validate } from "./queue.validation.js";
+
+// Storage
+import { Storage } from "./queue.storage.js";
 
 /**
  * A reactive queue that a host component creates for itself and keeps in a private field.
@@ -31,6 +34,20 @@ export class Queue<T extends object = Record<string, unknown>>
    * @hidden
    */
   private _condition: Condition = Condition.EMPTY;
+
+  /**
+   * Whether the queue has its stored items back
+   * @category State
+   * @hidden
+   */
+  private _ready: Ready = false;
+
+  /**
+   * Whether the queue's items survive a reload
+   * @category State
+   * @hidden
+   */
+  private _persisted: Persisted = false;
 
   /**
    * The items that wait to be handed out, in the order they are handed out
@@ -66,6 +83,13 @@ export class Queue<T extends object = Record<string, unknown>>
    * @hidden
    */
   private _count = 0;
+
+  /**
+   * The database that keeps the items, when the queue has `storage`
+   * @category Data
+   * @hidden
+   */
+  private _storage: Storage<T> | null = null;
 
   /**
    * The handler of `onadd`
@@ -124,15 +148,32 @@ export class Queue<T extends object = Record<string, unknown>>
   private _onempty: EventListener | null = null;
 
   /**
+   * The handler of `onready`
+   * @category Events
+   * @hidden
+   */
+  private _onready: EventListener | null = null;
+
+  /**
+   * The handler of `onunavailable`
+   * @category Events
+   * @hidden
+   */
+  private _onunavailable: EventListener | null = null;
+
+  /**
    * Create a queue; `options.order` chooses the order in which it hands out its items
    * @category Lifecycle
    */
   constructor(options: Options = {}) {
     super();
 
-    const { order } = Validate.options(options);
+    const { order, storage } = Validate.options(options);
 
     this._order = order ?? Order.FIFO;
+    this._storage = storage ? new Storage<T>(storage, this._unavailable) : null;
+
+    queueMicrotask(this._restore);
   }
 
   /**
@@ -163,6 +204,39 @@ export class Queue<T extends object = Record<string, unknown>>
     condition === Condition.WAITING && this._dispatch(Event.ON_WAITING, detail);
     condition === Condition.BUSY && this._dispatch(Event.ON_BUSY, detail);
     condition === Condition.EMPTY && this._dispatch(Event.ON_EMPTY, detail);
+  }
+
+  /**
+   * Whether the queue has its stored items back: `true` once they are restored
+   * @category State
+   */
+  public get ready(): Ready {
+    return this._ready;
+  }
+  private set ready(ready: Ready) {
+    // Guard
+    if (this._ready === ready) return;
+
+    // Mutate
+    this._ready = ready;
+
+    // Dispatch
+    ready && this._dispatch(Event.ON_READY, { ready });
+  }
+
+  /**
+   * Whether the queue's items survive a reload: `true` once its database is open
+   * @category State
+   */
+  public get persisted(): Persisted {
+    return this._persisted;
+  }
+  private set persisted(persisted: Persisted) {
+    // Guard
+    if (this._persisted === persisted) return;
+
+    // Mutate
+    this._persisted = persisted;
   }
 
   /**
@@ -271,6 +345,24 @@ export class Queue<T extends object = Record<string, unknown>>
   }
 
   /**
+   * Dispatched once, when the queue has its stored items back, with `detail.ready`, before the condition event the restored items cause
+   * @event
+   * @category Events
+   */
+  public set onready(handler: EventListener | null) {
+    this._onready = this._subscribe(Event.ON_READY, this._onready, handler);
+  }
+
+  /**
+   * Dispatched once, when the browser refuses to open or to write the database named by `storage`, with `detail.persisted` `false`: the items will not survive a reload
+   * @event
+   * @category Events
+   */
+  public set onunavailable(handler: EventListener | null) {
+    this._onunavailable = this._subscribe(Event.ON_UNAVAILABLE, this._onunavailable, handler);
+  }
+
+  /**
    * Put an item at its place among the waiting items
    * @category Operations
    */
@@ -284,6 +376,7 @@ export class Queue<T extends object = Record<string, unknown>>
     const added = { ...item, priority: item.priority ?? Priority.LOWEST } as Item<T>;
 
     this.waiting = [...this.waiting, added];
+    this._save(item.id);
 
     this._dispatch(Event.ON_ADD, { item: this._find(item.id) });
 
@@ -300,6 +393,7 @@ export class Queue<T extends object = Record<string, unknown>>
 
     this.waiting = rest;
     this.working = [...this.working, item];
+    this._save(item.id);
 
     this._dispatch(Event.ON_TAKE, { item: this._find(item.id) });
 
@@ -329,6 +423,7 @@ export class Queue<T extends object = Record<string, unknown>>
 
     this.waiting = this.waiting.map(change);
     this.working = this.working.map(change);
+    this._save(item.id);
 
     this._dispatch(Event.ON_UPDATE, { item: this._find(item.id) });
   };
@@ -348,6 +443,7 @@ export class Queue<T extends object = Record<string, unknown>>
     this.waiting = this.waiting.filter(kept);
     this.working = this.working.filter(kept);
     this._added.delete(id);
+    this._storage?.delete(id);
 
     this._dispatch(Event.ON_REMOVE, { item });
 
@@ -366,6 +462,7 @@ export class Queue<T extends object = Record<string, unknown>>
 
     this.working = this.working.filter((item) => item.id !== id);
     this.waiting = [...this.waiting, item];
+    this._save(id);
 
     this._dispatch(Event.ON_PUT_BACK, { item: this._find(id) });
 
@@ -407,6 +504,71 @@ export class Queue<T extends object = Record<string, unknown>>
   };
 
   /**
+   * Bring the stored items back, then make the queue ready
+   * @category Data
+   * @hidden
+   */
+  private _restore = async () => {
+    const stored = (await this._storage?.read()) ?? [];
+    this.persisted = Boolean(this._storage);
+
+    // The queue keeps the items added since it was created, before any stored with the same id
+    const restored = stored
+      .filter(({ id }) => !this._find(id))
+      .sort((a, b) => a.added - b.added);
+
+    // Number the restored items first, then the items added since the queue was created
+    const added = [...this.waiting, ...this.working]
+      .map(({ id }) => id)
+      .sort((a, b) => this._added.get(a)! - this._added.get(b)!);
+    this._count = 0;
+    [...restored.map(({ id }) => id), ...added].forEach((id) =>
+      this._added.set(id, this._count++)
+    );
+
+    const items = (working: boolean) =>
+      restored.filter((record) => record.working === working).map(({ item }) => item);
+    this.waiting = [...this.waiting, ...items(false)];
+    this.working = [...items(true), ...this.working];
+
+    [...this.waiting, ...this.working].forEach(({ id }) => this._save(id));
+
+    this.ready = true;
+
+    this._syncCondition();
+  };
+
+  /**
+   * The browser refused the database: go on in memory, and say so once
+   * @category Data
+   * @hidden
+   */
+  private _unavailable = () => {
+    if (!this._storage) return;
+
+    this._storage = null;
+    this.persisted = false;
+
+    this._dispatch(Event.ON_UNAVAILABLE, { persisted: false });
+  };
+
+  /**
+   * Keep the item with the given id in the database, as the queue holds it
+   * @category Data
+   * @hidden
+   */
+  private _save = (id: string) => {
+    const item = this._find(id);
+    item &&
+      this._storage?.put({
+        id,
+        item,
+        added: this._added.get(id)!,
+        working: this.working.includes(item)
+      });
+  };
+
+  /**
    * Compute the condition of the queue from its items
    * @category State
    * @hidden
@@ -417,6 +579,20 @@ export class Queue<T extends object = Record<string, unknown>>
       : this.working.length
         ? Condition.BUSY
         : Condition.EMPTY);
+
+  /**
+   * Remove every item, then delete the database named by `storage`; afterwards the queue lives in memory only
+   * @category Operations
+   */
+  public clear = async (): Promise<void> => {
+    [...this.waiting, ...this.working].forEach(({ id }) => this.remove(id));
+
+    const storage = this._storage;
+    this._storage = null;
+    this.persisted = false;
+
+    await storage?.drop();
+  };
 
   /**
    * Compare two waiting items: in a priority queue the higher priority comes first,

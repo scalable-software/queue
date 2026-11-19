@@ -37,6 +37,22 @@ metadata(Metadata.STATE, () => {
           expect(State.CONDITION).toBe("condition");
         });
 
+        then("`State.READY` exists", () => {
+          expect(State.READY).toBeDefined();
+        });
+
+        then("`State.READY` is `ready`", () => {
+          expect(State.READY).toBe("ready");
+        });
+
+        then("`State.PERSISTED` exists", () => {
+          expect(State.PERSISTED).toBeDefined();
+        });
+
+        then("`State.PERSISTED` is `persisted`", () => {
+          expect(State.PERSISTED).toBe("persisted");
+        });
+
         then("no state name is taken by `EventTarget`", () => {
           const taken = Object.values(State).filter(
             (name) => name in EventTarget.prototype
@@ -259,6 +275,14 @@ metadata(Metadata.OPERATION, () => {
           );
           expect(taken).toEqual([]);
         });
+
+        then("`Operation.CLEAR` exists", () => {
+          expect(Operation.CLEAR).toBeDefined();
+        });
+
+        then("`Operation.CLEAR` is `clear`", () => {
+          expect(Operation.CLEAR).toBe("clear");
+        });
       });
     });
   });
@@ -339,6 +363,22 @@ metadata(Metadata.EVENT, () => {
 
         then("`Event.ON_EMPTY` is `onempty`", () => {
           expect(Event.ON_EMPTY).toBe("onempty");
+        });
+
+        then("`Event.ON_READY` exists", () => {
+          expect(Event.ON_READY).toBeDefined();
+        });
+
+        then("`Event.ON_READY` is `onready`", () => {
+          expect(Event.ON_READY).toBe("onready");
+        });
+
+        then("`Event.ON_UNAVAILABLE` exists", () => {
+          expect(Event.ON_UNAVAILABLE).toBeDefined();
+        });
+
+        then("`Event.ON_UNAVAILABLE` is `onunavailable`", () => {
+          expect(Event.ON_UNAVAILABLE).toBe("onunavailable");
         });
 
         then("no event name is taken by `EventTarget`", () => {
