@@ -8,6 +8,8 @@ import {
   Operation
 } from "@scalable.software/queue";
 
+import type { Item } from "@scalable.software/queue";
+
 // Configuration
 given("Queue imported", () => {
   then("Queue is defined", () => {
@@ -364,6 +366,38 @@ operation(Operation.TAKE, () => {
 
     then("`queue.take` exists", () => {
       expect(queue.take).toBeDefined();
+    });
+  });
+
+  and("a queue is created, and `a` then `b` are added", () => {
+    let queue: Queue;
+    beforeEach(() => {
+      queue = new Queue();
+      queue.add({ id: "a" });
+      queue.add({ id: "b" });
+    });
+
+    when("`queue.take()` is invoked", () => {
+      let result: Item | null;
+      beforeEach(() => {
+        result = queue.take();
+      });
+
+      then("`a` is returned", () => {
+        expect(result?.id).toBe("a");
+      });
+
+      then("the item returned is `queue.working[0]`", () => {
+        expect(result).toBe(queue.working[0]);
+      });
+
+      then("`queue.waiting` holds `b`", () => {
+        expect(queue.waiting.map(({ id }) => id)).toEqual(["b"]);
+      });
+
+      then("`queue.working` holds `a`", () => {
+        expect(queue.working.map(({ id }) => id)).toEqual(["a"]);
+      });
     });
   });
 });
