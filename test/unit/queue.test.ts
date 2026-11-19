@@ -562,6 +562,40 @@ operation(Operation.UPDATE, () => {
       expect(queue.update).toBeDefined();
     });
   });
+
+  and("a queue is created, and `a`, `b` (7) and `c` are added", () => {
+    let queue: Queue;
+    beforeEach(() => {
+      queue = new Queue();
+      queue.add({ id: "a" });
+      queue.add({ id: "b", priority: 7, file: "report.pdf", pages: 3 });
+      queue.add({ id: "c" });
+    });
+
+    when("`queue.update({ id: \"b\", file: \"summary.pdf\" })` is invoked", () => {
+      let result: unknown;
+      beforeEach(() => {
+        result = queue.update({ id: "b", file: "summary.pdf" });
+      });
+
+      then("`undefined` is returned", () => {
+        expect(result).toBeUndefined();
+      });
+
+      then("`queue.waiting[1]` is `b` with `file` `summary.pdf`, its other fields kept", () => {
+        expect(queue.waiting[1]).toEqual({
+          id: "b",
+          priority: 7,
+          file: "summary.pdf",
+          pages: 3
+        });
+      });
+
+      then("`queue.waiting` still holds `a`, `b`, then `c`", () => {
+        expect(queue.waiting.map(({ id }) => id)).toEqual(["a", "b", "c"]);
+      });
+    });
+  });
 });
 
 // Event
