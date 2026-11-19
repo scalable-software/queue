@@ -34,6 +34,14 @@ export const Order = {
 export type Order = (typeof Order)[keyof typeof Order];
 
 /**
+ * The options a host component gives the queue when it creates it; read once, not kept
+ * @category Configuration
+ */
+export type Options = {
+  order?: Order;
+};
+
+/**
  * Operation names exposed by the Queue public API
  * @category Metadata: Operations
  * @enum

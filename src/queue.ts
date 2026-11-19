@@ -4,7 +4,7 @@
 
 // Metadata
 import { Order } from "./queue.meta.js";
-import type { Meta } from "./queue.meta.js";
+import type { Meta, Options } from "./queue.meta.js";
 
 /**
  * A reactive queue that a host component creates for itself and keeps in a private field.
@@ -19,8 +19,14 @@ export class Queue extends EventTarget implements Meta {
    */
   private _order: Order = Order.FIFO;
 
-  constructor() {
+  /**
+   * Create a queue; `options.order` chooses the order in which it hands out its items
+   * @category Lifecycle
+   */
+  constructor(options: Options = {}) {
     super();
+
+    this._order = options.order ?? Order.FIFO;
   }
 
   /**
