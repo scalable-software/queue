@@ -671,6 +671,37 @@ operation(Operation.UPDATE, () => {
       });
     });
   });
+
+  and("a queue is created, and `a` is added", () => {
+    let queue: Queue;
+    beforeEach(() => {
+      queue = new Queue();
+      queue.add({ id: "a" });
+    });
+
+    when("`queue.update({ id: \"a\", priority: 11 })` is invoked", () => {
+      let error: Error;
+      beforeEach(() => {
+        try {
+          queue.update({ id: "a", priority: 11 });
+        } catch (err) {
+          error = err as Error;
+        }
+      });
+
+      then("an error is thrown", () => {
+        expect(error).toBeDefined();
+      });
+
+      then("error message is 'Invalid item value: priority is invalid'", () => {
+        expect(error?.message).toBe("Invalid item value: priority is invalid");
+      });
+
+      then("`queue.waiting[0].priority` is still `Priority.LOWEST`", () => {
+        expect(queue.waiting[0].priority).toBe(Priority.LOWEST);
+      });
+    });
+  });
 });
 
 // Event
