@@ -138,6 +138,13 @@ export class Queue<T extends object = Record<string, unknown>>
   private _onempty: EventListener | null = null;
 
   /**
+   * The handler of `onready`
+   * @category Events
+   * @hidden
+   */
+  private _onready: EventListener | null = null;
+
+  /**
    * Create a queue; `options.order` chooses the order in which it hands out its items
    * @category Lifecycle
    */
@@ -307,6 +314,15 @@ export class Queue<T extends object = Record<string, unknown>>
    */
   public set onempty(handler: EventListener | null) {
     this._onempty = this._subscribe(Event.ON_EMPTY, this._onempty, handler);
+  }
+
+  /**
+   * Dispatched once, when the queue has its stored items back, with `detail.ready`, before the condition event the restored items cause
+   * @event
+   * @category Events
+   */
+  public set onready(handler: EventListener | null) {
+    this._onready = this._subscribe(Event.ON_READY, this._onready, handler);
   }
 
   /**
