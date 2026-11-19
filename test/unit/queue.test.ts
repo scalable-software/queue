@@ -764,6 +764,24 @@ operation(Operation.UPDATE, () => {
       });
     });
   });
+
+  and("a queue is created, and `a` (7) is added", () => {
+    let queue: Queue;
+    beforeEach(() => {
+      queue = new Queue();
+      queue.add({ id: "a", priority: 7 });
+    });
+
+    when("`queue.update({ id: \"a\", priority: undefined })` is invoked", () => {
+      beforeEach(() => {
+        queue.update({ id: "a", priority: undefined });
+      });
+
+      then("`queue.waiting[0].priority` is still `7`", () => {
+        expect(queue.waiting[0].priority).toBe(7);
+      });
+    });
+  });
 });
 
 operation(Operation.REMOVE, () => {
