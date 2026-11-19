@@ -619,6 +619,36 @@ operation(Operation.UPDATE, () => {
       });
     });
   });
+
+  and("a queue is created with `{ order: Order.PRIORITY }`, and `a` (5), `b` (5) and `c` (1) are added", () => {
+    let queue: Queue;
+    beforeEach(() => {
+      queue = new Queue({ order: Order.PRIORITY });
+      queue.add({ id: "a", priority: 5 });
+      queue.add({ id: "b", priority: 5 });
+      queue.add({ id: "c", priority: 1 });
+    });
+
+    when("`queue.update({ id: \"c\", priority: 5 })` is invoked", () => {
+      beforeEach(() => {
+        queue.update({ id: "c", priority: 5 });
+      });
+
+      then("`queue.waiting` holds `a`, `b`, then `c`", () => {
+        expect(queue.waiting.map(({ id }) => id)).toEqual(["a", "b", "c"]);
+      });
+    });
+
+    when("`queue.update({ id: \"b\", priority: 10 })` is invoked", () => {
+      beforeEach(() => {
+        queue.update({ id: "b", priority: 10 });
+      });
+
+      then("`queue.waiting` holds `b`, `a`, then `c`", () => {
+        expect(queue.waiting.map(({ id }) => id)).toEqual(["b", "a", "c"]);
+      });
+    });
+  });
 });
 
 // Event
