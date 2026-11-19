@@ -221,3 +221,15 @@ validation("item", () => {
     ]);
   });
 });
+
+validation("item", () => {
+  given("Validate is imported", () => {
+    rejects("item", (value) => Validate.item(value), [
+      [{ id: "a", priority: 0 }, "Invalid item value: priority is invalid"],
+      [{ id: "a", priority: 11 }, "Invalid item value: priority is invalid"],
+      [{ id: "a", priority: 1.5 }, "Invalid item value: priority is invalid"],
+      [{ id: "a", priority: "5" }, "Invalid item value: priority is invalid"],
+      [{ id: "a", priority: null }, "Invalid item value: priority is invalid"]
+    ]);
+  });
+});
