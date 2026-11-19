@@ -96,6 +96,13 @@ export class Queue<T extends object = Record<string, unknown>>
   private _onremove: EventListener | null = null;
 
   /**
+   * The handler of `onputback`
+   * @category Events
+   * @hidden
+   */
+  private _onputback: EventListener | null = null;
+
+  /**
    * Create a queue; `options.order` chooses the order in which it hands out its items
    * @category Lifecycle
    */
@@ -198,6 +205,15 @@ export class Queue<T extends object = Record<string, unknown>>
    */
   public set onremove(handler: EventListener | null) {
     this._onremove = this._subscribe(Event.ON_REMOVE, this._onremove, handler);
+  }
+
+  /**
+   * Dispatched when an item that was being worked on is put back among the waiting items, with the item as the queue holds it in `detail.item`
+   * @event
+   * @category Events
+   */
+  public set onputback(handler: EventListener | null) {
+    this._onputback = this._subscribe(Event.ON_PUT_BACK, this._onputback, handler);
   }
 
   /**
