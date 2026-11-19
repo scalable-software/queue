@@ -221,6 +221,23 @@ state(State.READY, () => {
   });
 });
 
+state(State.PERSISTED, () => {
+  given("a queue is created", () => {
+    let queue: Queue;
+    beforeEach(() => {
+      queue = new Queue();
+    });
+
+    then("`queue.persisted` getter exists", () => {
+      expect(hasGetter(queue, State.PERSISTED)).toBe(true);
+    });
+
+    then("`queue.persisted` is `false`", () => {
+      expect(queue.persisted).toBe(false);
+    });
+  });
+});
+
 // Data
 data(Datum.WAITING, () => {
   given("a queue is created", () => {
