@@ -400,6 +400,7 @@ export class Queue<T extends object = Record<string, unknown>>
 
     this.waiting = this.waiting.map(change);
     this.working = this.working.map(change);
+    this._save(item.id);
 
     this._dispatch(Event.ON_UPDATE, { item: this._find(item.id) });
   };
