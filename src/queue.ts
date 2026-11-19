@@ -165,6 +165,8 @@ export class Queue<T extends object = Record<string, unknown>>
     this.waiting = rest;
     this.working = [...this.working, item];
 
+    this._syncCondition();
+
     return item;
   };
 
@@ -222,7 +224,11 @@ export class Queue<T extends object = Record<string, unknown>>
    * @hidden
    */
   private _syncCondition = () =>
-    (this.condition = this.waiting.length ? Condition.WAITING : Condition.EMPTY);
+    (this.condition = this.waiting.length
+      ? Condition.WAITING
+      : this.working.length
+        ? Condition.BUSY
+        : Condition.EMPTY);
 
   /**
    * Compare two waiting items: in a priority queue the higher priority comes first,
