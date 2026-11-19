@@ -49,3 +49,8 @@ with a priority when it is more urgent than others, so that it waits its turn.
 
 As a **host component**, when I am ready for the next piece of work, I want to take the next
 waiting item and have it marked as being worked on, so that no item is handed out twice.
+
+### STORY: Look Ahead
+
+As a **host component**, when I want to know what comes next, I want to see the next waiting
+item without taking it, so that I can decide before I start on it.
