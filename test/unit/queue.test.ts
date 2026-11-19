@@ -1400,6 +1400,48 @@ operation(Operation.CLEAR, () => {
       });
     });
   });
+
+  and("a queue with `storage` is ready, and holds `a`", () => {
+    let storage: string;
+    let queue: Queue;
+    const exists = async () =>
+      (await indexedDB.databases()).some(({ name }) => name === storage);
+    beforeEach(async () => {
+      storage = unique();
+      queue = await reopen(storage);
+      queue.add({ id: "a" });
+    });
+    afterEach(() => drop(storage));
+
+    when("`queue.clear()` is invoked and settles", () => {
+      beforeEach(async () => {
+        await queue.clear();
+      });
+
+      then("the database named by `storage` no longer exists", async () => {
+        expect(await exists()).toBe(false);
+      });
+
+      then("`queue.persisted` is `false`", () => {
+        expect(queue.persisted).toBe(false);
+      });
+
+      when("`b` is added", () => {
+        beforeEach(async () => {
+          queue.add({ id: "b" });
+          await settle();
+        });
+
+        then("`queue.waiting` holds `b`", () => {
+          expect(queue.waiting.map(({ id }) => id)).toEqual(["b"]);
+        });
+
+        then("the database named by `storage` still does not exist", async () => {
+          expect(await exists()).toBe(false);
+        });
+      });
+    });
+  });
 });
 
 // Event
