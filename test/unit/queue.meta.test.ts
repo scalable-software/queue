@@ -1,4 +1,12 @@
-import { State, Order, Condition, Datum, Operation, Event } from "@scalable.software/queue";
+import {
+  State,
+  Order,
+  Condition,
+  Datum,
+  Priority,
+  Operation,
+  Event
+} from "@scalable.software/queue";
 
 // State
 metadata(Metadata.STATE, () => {
@@ -132,6 +140,38 @@ metadata(Metadata.DATUM, () => {
 
         then("`Datum.WORKING` is `working`", () => {
           expect(Datum.WORKING).toBe("working");
+        });
+      });
+    });
+  });
+});
+
+metadata("priority", () => {
+  and("Priority imported", () => {
+    then("Priority is defined", () => {
+      expect(Priority).toBeDefined();
+    });
+
+    and("Priority is defined", () => {
+      then("Priority is an object", () => {
+        expect(typeof Priority).toBe("object");
+      });
+
+      when("Priority is an object", () => {
+        then("`Priority.LOWEST` exists", () => {
+          expect(Priority.LOWEST).toBeDefined();
+        });
+
+        then("`Priority.LOWEST` is `1`", () => {
+          expect(Priority.LOWEST).toBe(1);
+        });
+
+        then("`Priority.HIGHEST` exists", () => {
+          expect(Priority.HIGHEST).toBeDefined();
+        });
+
+        then("`Priority.HIGHEST` is `10`", () => {
+          expect(Priority.HIGHEST).toBe(10);
         });
       });
     });
