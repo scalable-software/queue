@@ -151,6 +151,7 @@ export class Queue<T extends object = Record<string, unknown>>
    */
   public take = (): Item<T> | null => {
     const [item, ...rest] = this.waiting;
+    if (!item) return null;
 
     this.waiting = rest;
     this.working = [...this.working, item];
