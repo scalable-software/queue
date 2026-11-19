@@ -202,6 +202,8 @@ export class Queue<T extends object = Record<string, unknown>>
     this.waiting = this.waiting.filter(kept);
     this.working = this.working.filter(kept);
     this._added.delete(id);
+
+    this._syncCondition();
   };
 
   /**
