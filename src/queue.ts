@@ -117,6 +117,13 @@ export class Queue<T extends object = Record<string, unknown>>
   private _onbusy: EventListener | null = null;
 
   /**
+   * The handler of `onempty`
+   * @category Events
+   * @hidden
+   */
+  private _onempty: EventListener | null = null;
+
+  /**
    * Create a queue; `options.order` chooses the order in which it hands out its items
    * @category Lifecycle
    */
@@ -251,6 +258,15 @@ export class Queue<T extends object = Record<string, unknown>>
    */
   public set onbusy(handler: EventListener | null) {
     this._onbusy = this._subscribe(Event.ON_BUSY, this._onbusy, handler);
+  }
+
+  /**
+   * Dispatched when `condition` changes to `empty`, with `detail.condition`, after the event for the item
+   * @event
+   * @category Events
+   */
+  public set onempty(handler: EventListener | null) {
+    this._onempty = this._subscribe(Event.ON_EMPTY, this._onempty, handler);
   }
 
   /**

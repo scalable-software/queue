@@ -142,7 +142,8 @@ export const Event = {
   ON_REMOVE: "onremove",
   ON_PUT_BACK: "onputback",
   ON_WAITING: "onwaiting",
-  ON_BUSY: "onbusy"
+  ON_BUSY: "onbusy",
+  ON_EMPTY: "onempty"
 } as const;
 
 /**
