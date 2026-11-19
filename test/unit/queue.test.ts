@@ -203,6 +203,16 @@ operation(Operation.ADD, () => {
         ]);
       });
     });
+
+    when("`queue.add({ id: \"a\", priority: 7 })` is invoked", () => {
+      beforeEach(() => {
+        queue.add({ id: "a", priority: 7 });
+      });
+
+      then("`queue.waiting[0].priority` is `7`", () => {
+        expect(queue.waiting[0].priority).toBe(7);
+      });
+    });
   });
 });
 
