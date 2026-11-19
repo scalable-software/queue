@@ -1292,4 +1292,40 @@ events(Event.ON_PUT_BACK, () => {
       expect(hasSetter(queue, Event.ON_PUT_BACK)).toBe(true);
     });
   });
+
+  and("a queue is created, `a` is added and taken, and `queue.onputback` is assigned a listener", () => {
+    let queue: Queue;
+    let onputback: jasmine.Spy;
+    beforeEach(() => {
+      queue = new Queue();
+      queue.add({ id: "a" });
+      queue.take();
+      onputback = jasmine.createSpy("onputback");
+      queue.onputback = onputback;
+    });
+
+    when("`queue.putBack(\"a\")` is invoked", () => {
+      beforeEach(() => {
+        queue.putBack("a");
+      });
+
+      then("the listener is called once", () => {
+        expect(onputback).toHaveBeenCalledTimes(1);
+      });
+
+      then("`detail.item` is the item as the queue holds it", () => {
+        expect(onputback.calls.mostRecent().args[0].detail.item).toBe(queue.waiting[0]);
+      });
+
+      when("`queue.putBack(\"a\")` is invoked again", () => {
+        beforeEach(() => {
+          queue.putBack("a");
+        });
+
+        then("the listener is not called again", () => {
+          expect(onputback).toHaveBeenCalledTimes(1);
+        });
+      });
+    });
+  });
 });
