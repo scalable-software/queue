@@ -715,6 +715,30 @@ operation(Operation.REMOVE, () => {
       expect(queue.remove).toBeDefined();
     });
   });
+
+  and("a queue is created, and `a` then `b` are added", () => {
+    let queue: Queue;
+    beforeEach(() => {
+      queue = new Queue();
+      queue.add({ id: "a" });
+      queue.add({ id: "b" });
+    });
+
+    when("`queue.remove(\"a\")` is invoked", () => {
+      let result: unknown;
+      beforeEach(() => {
+        result = queue.remove("a");
+      });
+
+      then("`undefined` is returned", () => {
+        expect(result).toBeUndefined();
+      });
+
+      then("`queue.waiting` holds only `b`", () => {
+        expect(queue.waiting.map(({ id }) => id)).toEqual(["b"]);
+      });
+    });
+  });
 });
 
 // Event
