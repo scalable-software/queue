@@ -416,6 +416,23 @@ data(Datum.WAITING, () => {
       expect(second.waiting.map(({ id }) => id)).toEqual(["a"]);
     });
   });
+
+  given("a queue with `storage` is ready, and `a` is added and changed", () => {
+    let storage: string;
+    let second: Queue;
+    beforeEach(async () => {
+      storage = unique();
+      const first = await reopen(storage);
+      first.add({ id: "a", file: "report.pdf" });
+      first.update({ id: "a", file: "summary.pdf", priority: 9 });
+      second = await reopen(storage);
+    });
+    afterEach(() => drop(storage));
+
+    then("a second queue with the same `storage` has `a` as it was changed", () => {
+      expect(second.waiting).toEqual([{ id: "a", file: "summary.pdf", priority: 9 }]);
+    });
+  });
 });
 
 data(Datum.WORKING, () => {
