@@ -88,3 +88,41 @@ it.
 As a **host component**, when I show whether there is work, I want to know whether the queue
 is empty, holds waiting items, or holds only items that are being worked on, and to be told
 when that changes, so that I can show an idle or busy state without counting items myself.
+
+## FEATURE: Persistent Queue
+
+**Benefit** — A host component's queue outlives the page: its items are kept in the browser,
+so that work that was added but not finished is still there after a reload or after the tab
+was closed.
+
+**Personas**
+
+- **Host component** — the web component that keeps its queue across page loads.
+- **Maintainer** — the person who builds, releases and keeps the queue.
+
+**In scope**
+
+- Keeping every item of a queue in the browser's own storage (IndexedDB), and keeping that
+  copy in step with every change.
+- Restoring the items when the queue starts, exactly as they were, items that were being
+  worked on included, so that the host component decides whether to put those back.
+- Announcing when the restored items are ready.
+- Keeping each queue apart from every other queue, under a name the host component gives it.
+- Going on working for the page when the browser refuses storage, and saying so.
+- Removing a queue's stored items when the host component no longer needs them.
+
+**Out of scope**
+
+- Choosing for the host component what happens to items that were being worked on when the
+  page closed.
+- Keeping a queue in step between tabs that open the same stored queue.
+- Storing queues on a server, or moving them between browsers or devices.
+- Moving stored items from one version of the stored format to another, until a second
+  format exists.
+
+---
+
+### STORY: Queue Survives a Reload
+
+As a **host component**, when the page is reloaded or the tab was closed, I want my queue to
+start with the items it held before, so that unfinished work is not lost.
