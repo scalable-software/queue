@@ -211,3 +211,13 @@ validation("item", () => {
     ]);
   });
 });
+
+validation("item", () => {
+  given("Validate is imported", () => {
+    rejects("item", (value) => Validate.item(value), [
+      [{ id: "" }, "Invalid item value: id is invalid"],
+      [{ id: 1 }, "Invalid item value: id is invalid"],
+      [{ id: null }, "Invalid item value: id is invalid"]
+    ]);
+  });
+});
