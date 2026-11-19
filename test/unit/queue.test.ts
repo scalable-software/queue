@@ -186,6 +186,23 @@ operation(Operation.ADD, () => {
     then("`queue.add` exists", () => {
       expect(queue.add).toBeDefined();
     });
+
+    when("`queue.add({ id: \"a\", file: \"report.pdf\" })` is invoked", () => {
+      let result: unknown;
+      beforeEach(() => {
+        result = queue.add({ id: "a", file: "report.pdf" });
+      });
+
+      then("`undefined` is returned", () => {
+        expect(result).toBeUndefined();
+      });
+
+      then("`queue.waiting` holds the item with `Priority.LOWEST`", () => {
+        expect(queue.waiting).toEqual([
+          { id: "a", file: "report.pdf", priority: Priority.LOWEST }
+        ]);
+      });
+    });
   });
 });
 
