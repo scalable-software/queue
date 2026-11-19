@@ -199,6 +199,8 @@ export class Queue<T extends object = Record<string, unknown>>
     this.waiting = rest;
     this.working = [...this.working, item];
 
+    this._dispatch(Event.ON_TAKE, { item: this._find(item.id) });
+
     this._syncCondition();
 
     return item;
