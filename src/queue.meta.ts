@@ -68,6 +68,16 @@ export const Datum = {
 export type Datum = (typeof Datum)[keyof typeof Datum];
 
 /**
+ * Value domain of an item's `priority`: a whole number from `LOWEST` to `HIGHEST`
+ * @category Metadata: Data
+ * @enum
+ */
+export const Priority = {
+  LOWEST: 1,
+  HIGHEST: 10
+} as const;
+
+/**
  * An item of the queue: the host's own object, with an `id` that is unique in the queue and a
  * `priority` from 1 (lowest) to 10 (highest); the queue keeps every other field as the host gave it
  * @category Metadata: Data

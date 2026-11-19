@@ -1,4 +1,12 @@
-export { State, Order, Condition, Datum, Operation, Event } from "./queue.meta.js";
+export {
+  State,
+  Order,
+  Condition,
+  Datum,
+  Priority,
+  Operation,
+  Event
+} from "./queue.meta.js";
 
 export type {
   Item,
