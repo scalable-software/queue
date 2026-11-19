@@ -1359,6 +1359,47 @@ operation(Operation.CLEAR, () => {
       expect(queue.clear).toBeDefined();
     });
   });
+
+  and("a queue holds `a` waiting and `b` being worked on, and records its events", () => {
+    let queue: Queue;
+    let order: string[];
+    let removed: string[];
+    beforeEach(async () => {
+      queue = new Queue();
+      await ready(queue);
+      queue.add({ id: "a" });
+      queue.add({ id: "b" });
+      queue.take();
+      order = [];
+      removed = [];
+      Object.values(Event).forEach((name) =>
+        queue.addEventListener(name, (event) => order.push(event.type))
+      );
+      queue.onremove = (event) => removed.push((event as CustomEvent).detail.item.id);
+    });
+
+    when("`queue.clear()` is invoked and settles", () => {
+      beforeEach(async () => {
+        await queue.clear();
+      });
+
+      then("`queue.waiting` is empty", () => {
+        expect(queue.waiting).toEqual([]);
+      });
+
+      then("`queue.working` is empty", () => {
+        expect(queue.working).toEqual([]);
+      });
+
+      then("`onremove` is dispatched for `b` and `a`", () => {
+        expect(removed.sort()).toEqual(["a", "b"]);
+      });
+
+      then("the last event is `onempty`", () => {
+        expect(order[order.length - 1]).toBe(Event.ON_EMPTY);
+      });
+    });
+  });
 });
 
 // Event
