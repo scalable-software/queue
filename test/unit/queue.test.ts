@@ -442,6 +442,26 @@ operation(Operation.TAKE, () => {
       });
     });
   });
+
+  and("a queue is created with `{ order: Order.PRIORITY }`, and `a` (1) then `b` (10) are added", () => {
+    let queue: Queue;
+    beforeEach(() => {
+      queue = new Queue({ order: Order.PRIORITY });
+      queue.add({ id: "a", priority: 1 });
+      queue.add({ id: "b", priority: 10 });
+    });
+
+    when("`queue.take()` is invoked", () => {
+      let result: Item | null;
+      beforeEach(() => {
+        result = queue.take();
+      });
+
+      then("`b` is returned", () => {
+        expect(result?.id).toBe("b");
+      });
+    });
+  });
 });
 
 // Event
