@@ -492,4 +492,17 @@ operation(Operation.TAKE, () => {
   });
 });
 
+operation(Operation.PEEK, () => {
+  and("a queue is created", () => {
+    let queue: Queue;
+    beforeEach(() => {
+      queue = new Queue();
+    });
+
+    then("`queue.peek` exists", () => {
+      expect(queue.peek).toBeDefined();
+    });
+  });
+});
+
 // Event
