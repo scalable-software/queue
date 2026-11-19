@@ -54,6 +54,20 @@ export class Queue<T extends object = Record<string, unknown>>
   private _stored = new WeakSet<Item<T>>();
 
   /**
+   * When each item was first added, by id: the earliest added comes first among equals
+   * @category Data
+   * @hidden
+   */
+  private _added = new Map<string, number>();
+
+  /**
+   * The number of items added so far, used to number the next one
+   * @category Data
+   * @hidden
+   */
+  private _count = 0;
+
+  /**
    * Create a queue; `options.order` chooses the order in which it hands out its items
    * @category Lifecycle
    */
@@ -90,6 +104,9 @@ export class Queue<T extends object = Record<string, unknown>>
     return this._waiting;
   }
   private set waiting(items: Items<T>) {
+    // Normalize
+    items = [...items].sort(this._compare);
+
     // Clone
     items = items.map(this._own);
 
@@ -114,10 +131,22 @@ export class Queue<T extends object = Record<string, unknown>>
     if (this._find(item.id))
       throw new Error("Invalid item value: id is already in the queue");
 
+    this._added.set(item.id, this._count++);
+
     const added = { ...item, priority: item.priority ?? Priority.LOWEST } as Item<T>;
 
     this.waiting = [...this.waiting, added];
   };
+
+  /**
+   * Compare two waiting items: in a priority queue the higher priority comes first,
+   * and otherwise the earliest added
+   * @category Data
+   * @hidden
+   */
+  private _compare = (a: Item<T>, b: Item<T>): number =>
+    (this.order === Order.PRIORITY ? b.priority - a.priority : 0) ||
+    this._added.get(a.id)! - this._added.get(b.id)!;
 
   /**
    * The item with the given id, waiting or being worked on
