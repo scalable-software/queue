@@ -9,6 +9,9 @@ import type { Entry, Item, Items, Meta, Options, Persisted, Ready } from "./queu
 // Validation
 import { Validate } from "./queue.validation.js";
 
+// Storage
+import { Storage } from "./queue.storage.js";
+
 /**
  * A reactive queue that a host component creates for itself and keeps in a private field.
  * It is an add-on, not a custom element: an `EventTarget` with no tag, template or stylesheet.
@@ -82,6 +85,13 @@ export class Queue<T extends object = Record<string, unknown>>
   private _count = 0;
 
   /**
+   * The database that keeps the items, when the queue has `storage`
+   * @category Data
+   * @hidden
+   */
+  private _storage: Storage<T> | null = null;
+
+  /**
    * The handler of `onadd`
    * @category Events
    * @hidden
@@ -151,9 +161,10 @@ export class Queue<T extends object = Record<string, unknown>>
   constructor(options: Options = {}) {
     super();
 
-    const { order } = Validate.options(options);
+    const { order, storage } = Validate.options(options);
 
     this._order = order ?? Order.FIFO;
+    this._storage = storage ? new Storage<T>(storage) : null;
 
     queueMicrotask(this._restore);
   }
@@ -342,6 +353,7 @@ export class Queue<T extends object = Record<string, unknown>>
     const added = { ...item, priority: item.priority ?? Priority.LOWEST } as Item<T>;
 
     this.waiting = [...this.waiting, added];
+    this._save(item.id);
 
     this._dispatch(Event.ON_ADD, { item: this._find(item.id) });
 
@@ -469,8 +481,32 @@ export class Queue<T extends object = Record<string, unknown>>
    * @category Data
    * @hidden
    */
-  private _restore = () => {
+  private _restore = async () => {
+    const stored = (await this._storage?.read()) ?? [];
+
+    const restored = stored.sort((a, b) => a.added - b.added);
+    restored.forEach(({ id }) => this._added.set(id, this._count++));
+    this.waiting = [...this.waiting, ...restored.map(({ item }) => item)];
+
     this.ready = true;
+
+    this._syncCondition();
+  };
+
+  /**
+   * Keep the item with the given id in the database, as the queue holds it
+   * @category Data
+   * @hidden
+   */
+  private _save = (id: string) => {
+    const item = this._find(id);
+    item &&
+      this._storage?.put({
+        id,
+        item,
+        added: this._added.get(id)!,
+        working: this.working.includes(item)
+      });
   };
 
   /**
