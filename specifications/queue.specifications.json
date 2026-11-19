@@ -33,6 +33,11 @@
       "description": "Hands out the next waiting item and moves it to the items being worked on, so that it is never handed out twice. Returns `null`, and changes nothing, when no item waits.",
       "parameters": [],
       "returns": "Item | null"
+    },
+    "peek": {
+      "description": "Returns the item `take()` would hand out, without taking it, or `null` when no item waits. Changes nothing.",
+      "parameters": [],
+      "returns": "Item | null"
     }
   },
   "Events": {
