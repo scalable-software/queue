@@ -400,6 +400,28 @@ operation(Operation.TAKE, () => {
       });
     });
   });
+
+  and("a queue is created with no items", () => {
+    let queue: Queue;
+    beforeEach(() => {
+      queue = new Queue();
+    });
+
+    when("`queue.take()` is invoked", () => {
+      let result: Item | null;
+      beforeEach(() => {
+        result = queue.take();
+      });
+
+      then("`null` is returned", () => {
+        expect(result).toBeNull();
+      });
+
+      then("`queue.working` is empty", () => {
+        expect(queue.working).toEqual([]);
+      });
+    });
+  });
 });
 
 // Event
