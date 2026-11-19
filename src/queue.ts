@@ -110,6 +110,8 @@ export class Queue<T extends object = Record<string, unknown>>
    * @category Operations
    */
   public add = (item: Entry<T>) => {
+    item = Validate.item(item) as Entry<T>;
+
     const added = { ...item, priority: item.priority ?? Priority.LOWEST } as Item<T>;
 
     this.waiting = [...this.waiting, added];
