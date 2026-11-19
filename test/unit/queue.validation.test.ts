@@ -113,3 +113,45 @@ validation("options", () => {
     });
   });
 });
+
+// Item
+validation("item", () => {
+  given("Validate is imported", () => {
+    then("`Validate.item` exists", () => {
+      expect(Validate.item).toBeDefined();
+    });
+
+    [
+      { id: "a" },
+      { id: "a", priority: 1 },
+      { id: "a", priority: 10, file: "report.pdf" }
+    ].forEach((item) => {
+      and(`\`value\` is \`${JSON.stringify(item)}\``, () => {
+        let value: any;
+        beforeEach(() => {
+          value = item;
+        });
+
+        when("`Validate.item(value)` is called", () => {
+          let result: unknown;
+          let error: unknown | undefined;
+          beforeEach(() => {
+            try {
+              result = Validate.item(value);
+            } catch (err) {
+              error = err;
+            }
+          });
+
+          then("no error is thrown", () => {
+            expect(error).toBeUndefined();
+          });
+
+          then("`value` is returned", () => {
+            expect(result).toBe(value);
+          });
+        });
+      });
+    });
+  });
+});
