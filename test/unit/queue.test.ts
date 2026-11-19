@@ -1064,4 +1064,51 @@ events(Event.ON_ADD, () => {
       });
     });
   });
+
+  and("a queue is created, and `queue.onadd` is assigned a listener", () => {
+    let queue: Queue;
+    let onadd: jasmine.Spy;
+    beforeEach(() => {
+      queue = new Queue();
+      onadd = jasmine.createSpy("onadd");
+      queue.onadd = onadd;
+    });
+
+    when("`queue.onadd` is assigned `invalid`", () => {
+      let error: Error;
+      beforeEach(() => {
+        try {
+          queue.onadd = "invalid" as any;
+        } catch (err) {
+          error = err as Error;
+        }
+      });
+
+      then("error message is 'Invalid onadd value: invalid'", () => {
+        expect(error?.message).toBe("Invalid onadd value: invalid");
+      });
+
+      and("an item is added", () => {
+        beforeEach(() => {
+          queue.add({ id: "a" });
+        });
+
+        then("the listener is still called", () => {
+          expect(onadd).toHaveBeenCalled();
+        });
+      });
+    });
+
+    when("`queue.add({ id: \"a\", priority: 11 })` is rejected", () => {
+      beforeEach(() => {
+        try {
+          queue.add({ id: "a", priority: 11 });
+        } catch {}
+      });
+
+      then("the listener is not called", () => {
+        expect(onadd).not.toHaveBeenCalled();
+      });
+    });
+  });
 });
