@@ -126,3 +126,8 @@ was closed.
 
 As a **host component**, when the page is reloaded or the tab was closed, I want my queue to
 start with the items it held before, so that unfinished work is not lost.
+
+### STORY: Restored and Ready
+
+As a **host component**, when my queue starts, I want to be told once its stored items are
+back, so that I take work only from a complete queue.
