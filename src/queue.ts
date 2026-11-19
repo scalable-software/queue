@@ -269,6 +269,8 @@ export class Queue<T extends object = Record<string, unknown>>
     id = Validate.id(id);
 
     const item = this._find(id);
+    if (!item) return;
+
     const kept = (item: Item<T>) => item.id !== id;
 
     this.waiting = this.waiting.filter(kept);
