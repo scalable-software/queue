@@ -816,6 +816,37 @@ operation(Operation.PUT_BACK, () => {
       expect(queue.putBack).toBeDefined();
     });
   });
+
+  and("a queue is created, `a`, `b` and `c` are added, and `a` and `b` are taken", () => {
+    let queue: Queue;
+    beforeEach(() => {
+      queue = new Queue();
+      queue.add({ id: "a" });
+      queue.add({ id: "b" });
+      queue.add({ id: "c" });
+      queue.take();
+      queue.take();
+    });
+
+    when("`queue.putBack(\"a\")` is invoked", () => {
+      let result: unknown;
+      beforeEach(() => {
+        result = queue.putBack("a");
+      });
+
+      then("`undefined` is returned", () => {
+        expect(result).toBeUndefined();
+      });
+
+      then("`queue.waiting` holds `a`, then `c`", () => {
+        expect(queue.waiting.map(({ id }) => id)).toEqual(["a", "c"]);
+      });
+
+      then("`queue.working` holds `b`", () => {
+        expect(queue.working.map(({ id }) => id)).toEqual(["b"]);
+      });
+    });
+  });
 });
 
 // Event
