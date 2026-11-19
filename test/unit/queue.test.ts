@@ -433,6 +433,30 @@ data(Datum.WAITING, () => {
       expect(second.waiting).toEqual([{ id: "a", file: "summary.pdf", priority: 9 }]);
     });
   });
+
+  given("a queue with `storage` is ready, `a` and `b` are added, `b` is taken, and both are removed", () => {
+    let storage: string;
+    let second: Queue;
+    beforeEach(async () => {
+      storage = unique();
+      const first = await reopen(storage);
+      first.add({ id: "a" });
+      first.add({ id: "b" });
+      first.remove("a");
+      first.take();
+      first.remove("b");
+      second = await reopen(storage);
+    });
+    afterEach(() => drop(storage));
+
+    then("a second queue with the same `storage` has no items waiting", () => {
+      expect(second.waiting).toEqual([]);
+    });
+
+    then("a second queue with the same `storage` has no items being worked on", () => {
+      expect(second.working).toEqual([]);
+    });
+  });
 });
 
 data(Datum.WORKING, () => {
