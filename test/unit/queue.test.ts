@@ -847,6 +847,32 @@ operation(Operation.PUT_BACK, () => {
       });
     });
   });
+
+  and("a queue is created, and `a` and `b` are added, and `a` is taken", () => {
+    let queue: Queue;
+    beforeEach(() => {
+      queue = new Queue();
+      queue.add({ id: "a" });
+      queue.add({ id: "b" });
+      queue.take();
+    });
+
+    ["b", "z"].forEach((id) => {
+      when(`\`queue.putBack("${id}")\` is invoked`, () => {
+        beforeEach(() => {
+          queue.putBack(id);
+        });
+
+        then("`queue.waiting` still holds `b`", () => {
+          expect(queue.waiting.map(({ id }) => id)).toEqual(["b"]);
+        });
+
+        then("`queue.working` still holds `a`", () => {
+          expect(queue.working.map(({ id }) => id)).toEqual(["a"]);
+        });
+      });
+    });
+  });
 });
 
 // Event
