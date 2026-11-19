@@ -69,6 +69,16 @@ export class Storage<T extends object = Record<string, unknown>> {
   };
 
   /**
+   * Remove the stored item with the given id
+   */
+  public delete = (id: string) => {
+    this._database = this._database.then((database) => {
+      database.transaction(ITEMS, "readwrite").objectStore(ITEMS).delete(id);
+      return database;
+    });
+  };
+
+  /**
    * Open the database, creating its object store the first time, and close it when another
    * connection wants to delete or upgrade it
    * @hidden
