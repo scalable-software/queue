@@ -1410,3 +1410,16 @@ events(Event.ON_BUSY, () => {
     });
   });
 });
+
+events(Event.ON_EMPTY, () => {
+  and("a queue is created", () => {
+    let queue: Queue;
+    beforeEach(() => {
+      queue = new Queue();
+    });
+
+    then("`queue.onempty` setter exists", () => {
+      expect(hasSetter(queue, Event.ON_EMPTY)).toBe(true);
+    });
+  });
+});
