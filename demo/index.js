@@ -20,7 +20,8 @@ const invoke = {
   [Operation.PEEK]: () => queue.peek(),
   [Operation.UPDATE]: () => queue.update(item()),
   [Operation.REMOVE]: () => queue.remove(item().id),
-  [Operation.PUT_BACK]: () => queue.putBack(item().id)
+  [Operation.PUT_BACK]: () => queue.putBack(item().id),
+  [Operation.CLEAR]: () => queue.clear()
 };
 
 // Show the data and the states as the queue holds them
@@ -28,6 +29,8 @@ const show = () => {
   $("waiting").textContent = JSON.stringify(queue.waiting, null, 2);
   $("working").textContent = JSON.stringify(queue.working, null, 2);
   $("condition").textContent = queue.condition;
+  $("ready").textContent = queue.ready;
+  $("persisted").textContent = queue.persisted;
   $("order").value = queue.order;
 };
 
@@ -39,8 +42,9 @@ const log = (event) => {
   $("log").append(entry);
 };
 
-const create = (order) => {
-  queue = new Queue({ order });
+const create = () => {
+  const storage = $("storage").value.trim();
+  queue = new Queue({ order: $("order").value, ...(storage && { storage }) });
   Object.values(Event).forEach((name) =>
     queue.addEventListener(name, (event) => {
       log(event);
@@ -55,11 +59,11 @@ Object.values(Operation).forEach((operation) => {
   const button = document.createElement("button");
   button.type = "button";
   button.textContent = operation;
-  button.addEventListener("click", () => {
+  button.addEventListener("click", async () => {
     $("error").textContent = "";
     $("returned").textContent = "—";
     try {
-      const result = invoke[operation]();
+      const result = await invoke[operation]();
       $("returned").textContent = JSON.stringify(result) ?? "undefined";
     } catch (error) {
       $("error").textContent = error.message;
@@ -69,10 +73,11 @@ Object.values(Operation).forEach((operation) => {
   $("operations").append(button);
 });
 
-// States: `order` is chosen when the queue is created
+// States: `order` and `storage` are chosen when the queue is created
 Object.values(Order).forEach((order) => $("order").append(new Option(order, order)));
-$("order").addEventListener("change", ({ target }) => create(target.value));
+$("order").addEventListener("change", create);
+$("storage").addEventListener("change", create);
 
 $("clear").addEventListener("click", () => $("log").replaceChildren());
 
-create(Order.FIFO);
+create();

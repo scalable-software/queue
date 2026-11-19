@@ -32,7 +32,8 @@
         </form>
         <p class="hint">
           <code>add</code> and <code>update</code> use this item;
-          <code>remove</code> and <code>putBack</code> use its id.
+          <code>remove</code> and <code>putBack</code> use its id;
+          <code>clear</code> also deletes the stored queue.
         </p>
         <h3>waiting</h3>
         <pre id="waiting"></pre>
@@ -53,8 +54,17 @@
           order
           <select id="order"></select>
         </label>
-        <p class="hint">Chosen when the queue is created: changing it creates a new, empty queue.</p>
+        <label>
+          storage
+          <input id="storage" placeholder="memory only" />
+        </label>
+        <p class="hint">
+          Both are chosen when the queue is created: changing one creates a new queue. A queue
+          with the same <code>storage</code> restores the items it held, also after a reload.
+        </p>
         <p>condition <output id="condition"></output> <span class="readonly">readonly</span></p>
+        <p>ready <output id="ready"></output> <span class="readonly">readonly</span></p>
+        <p>persisted <output id="persisted"></output> <span class="readonly">readonly</span></p>
       </section>
 
       <section class="group" aria-labelledby="events-title">
