@@ -82,3 +82,9 @@ item back among the waiting items, so that it is handed out again instead of bei
 As a **host component**, I want to be told each time an item is added, changed, removed,
 taken or put back, together with the item, so that I react to the queue instead of checking
 it.
+
+### STORY: Queue Condition
+
+As a **host component**, when I show whether there is work, I want to know whether the queue
+is empty, holds waiting items, or holds only items that are being worked on, and to be told
+when that changes, so that I can show an idle or busy state without counting items myself.
