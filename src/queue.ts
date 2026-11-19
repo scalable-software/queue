@@ -111,11 +111,22 @@ export class Queue<T extends object = Record<string, unknown>>
    */
   public add = (item: Entry<T>) => {
     item = Validate.item(item) as Entry<T>;
+    if (this._find(item.id))
+      throw new Error("Invalid item value: id is already in the queue");
 
     const added = { ...item, priority: item.priority ?? Priority.LOWEST } as Item<T>;
 
     this.waiting = [...this.waiting, added];
   };
+
+  /**
+   * The item with the given id, waiting or being worked on
+   * @category Data
+   * @hidden
+   */
+  private _find = (id: string): Item<T> | undefined =>
+    this.waiting.find((item) => item.id === id) ??
+    this.working.find((item) => item.id === id);
 
   /**
    * The queue's own copy of an item: the item itself when the queue already holds it,
