@@ -8,6 +8,12 @@
       "description": "The items that wait to be handed out, as a list of `Item`, in the order `take()` hands them out: the order they were added, or, in a priority queue, the highest `priority` first and the earliest added first among equals. An item that is put back or changed keeps the place its first addition gave it. Each item is the stored, frozen copy.",
       "default": [],
       "readonly": true
+    },
+    "working": {
+      "type": "Items",
+      "description": "The items that have been taken and are being worked on, as a list of `Item`, in the order they were taken. An item stays here until it is removed or put back. Each item is the stored, frozen copy.",
+      "default": [],
+      "readonly": true
     }
   },
   "States": {},
@@ -22,11 +28,31 @@
         }
       ],
       "returns": "void"
+    },
+    "take": {
+      "description": "Hands out the next waiting item and moves it to the items being worked on, so that it is never handed out twice. Returns `null`, and changes nothing, when no item waits.",
+      "parameters": [],
+      "returns": "Item | null"
     }
   },
   "Events": {
     "onadd": {
       "description": "Dispatched when an item is added.",
+      "parameters": [
+        {
+          "name": "detail",
+          "type": "object",
+          "description": "Contains the item as the queue holds it.",
+          "properties": {
+            "item": {
+              "type": "Item"
+            }
+          }
+        }
+      ]
+    },
+    "ontake": {
+      "description": "Dispatched when an item is taken and is being worked on.",
       "parameters": [
         {
           "name": "detail",
