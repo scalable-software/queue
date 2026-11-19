@@ -71,6 +71,17 @@
         }
       ],
       "returns": "void"
+    },
+    "putBack": {
+      "description": "Puts an item that is being worked on back among the waiting items, at the place it would have had had it never been taken. Throws `Invalid id value: <value>` for an id that is not a non-empty string. An id that is waiting, or that the queue does not hold, changes nothing.",
+      "parameters": [
+        {
+          "name": "id",
+          "type": "string",
+          "description": "The id of the item to put back."
+        }
+      ],
+      "returns": "void"
     }
   },
   "Events": {
@@ -126,6 +137,21 @@
           "name": "detail",
           "type": "object",
           "description": "Contains the item as the queue held it.",
+          "properties": {
+            "item": {
+              "type": "Item"
+            }
+          }
+        }
+      ]
+    },
+    "onputback": {
+      "description": "Dispatched when an item that was being worked on is put back among the waiting items.",
+      "parameters": [
+        {
+          "name": "detail",
+          "type": "object",
+          "description": "Contains the item as the queue holds it.",
           "properties": {
             "item": {
               "type": "Item"
