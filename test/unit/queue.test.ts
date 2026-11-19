@@ -14,6 +14,24 @@ import type { Item } from "@scalable.software/queue";
 // Resolves once the tasks queued so far have run
 const settle = () => new Promise((resolve) => setTimeout(resolve));
 
+// A database name of its own, for one spec
+const unique = () => `queue-${crypto.randomUUID()}`;
+
+// Resolves once `queue` has its stored items back
+const ready = (queue: Queue) =>
+  queue.ready
+    ? Promise.resolve()
+    : new Promise<void>((resolve) =>
+        queue.addEventListener(Event.ON_READY, () => resolve(), { once: true })
+      );
+
+// Deletes the database named `name`
+const drop = (name: string) =>
+  new Promise<void>((resolve) => {
+    const request = indexedDB.deleteDatabase(name);
+    request.onsuccess = request.onerror = request.onblocked = () => resolve();
+  });
+
 // Configuration
 given("Queue imported", () => {
   then("Queue is defined", () => {
@@ -342,6 +360,34 @@ data(Datum.WAITING, () => {
         then("`queue.waiting[0].file` is still `report.pdf`", () => {
           expect(queue.waiting[0].file).toBe("report.pdf");
         });
+      });
+    });
+  });
+
+  given("a queue with `storage` is ready, and `a` (7) and `b` are added", () => {
+    let storage: string;
+    let first: Queue;
+    let second: Queue;
+    beforeEach(async () => {
+      storage = unique();
+      first = new Queue({ storage });
+      await ready(first);
+      first.add({ id: "a", priority: 7, file: "report.pdf" });
+      first.add({ id: "b" });
+    });
+    afterEach(() => drop(storage));
+
+    when("a second queue with the same `storage` is ready", () => {
+      beforeEach(async () => {
+        second = new Queue({ storage });
+        await ready(second);
+      });
+
+      then("its `waiting` holds `a` and `b`, as they were", () => {
+        expect(second.waiting).toEqual([
+          { id: "a", priority: 7, file: "report.pdf" },
+          { id: "b", priority: Priority.LOWEST }
+        ]);
       });
     });
   });
