@@ -1386,4 +1386,27 @@ events(Event.ON_BUSY, () => {
       expect(hasSetter(queue, Event.ON_BUSY)).toBe(true);
     });
   });
+
+  and("a queue is created, `a` is added, and `queue.onbusy` is assigned a listener", () => {
+    let queue: Queue;
+    let onbusy: jasmine.Spy;
+    beforeEach(() => {
+      queue = new Queue();
+      queue.add({ id: "a" });
+      onbusy = jasmine.createSpy("onbusy");
+      queue.onbusy = onbusy;
+    });
+
+    when("`a` is taken", () => {
+      beforeEach(() => {
+        queue.take();
+      });
+
+      then("the listener is called with `detail.condition` `Condition.BUSY`", () => {
+        expect(onbusy).toHaveBeenCalledOnceWith(
+          jasmine.objectContaining({ detail: { condition: Condition.BUSY } })
+        );
+      });
+    });
+  });
 });
