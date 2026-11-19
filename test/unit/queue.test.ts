@@ -34,6 +34,39 @@ state(State.ORDER, () => {
       expect(queue.order).toBe(Order.FIFO);
     });
   });
+
+  given("a queue is created with `{ order: Order.PRIORITY }`", () => {
+    let queue: Queue;
+    beforeEach(() => {
+      queue = new Queue({ order: Order.PRIORITY });
+    });
+
+    then("`queue.order` is `Order.PRIORITY`", () => {
+      expect(queue.order).toBe(Order.PRIORITY);
+    });
+  });
+
+  given("a queue is created with `{ order: Order.FIFO }`", () => {
+    let queue: Queue;
+    beforeEach(() => {
+      queue = new Queue({ order: Order.FIFO });
+    });
+
+    then("`queue.order` is `Order.FIFO`", () => {
+      expect(queue.order).toBe(Order.FIFO);
+    });
+  });
+
+  given("a queue is created with `{}`", () => {
+    let queue: Queue;
+    beforeEach(() => {
+      queue = new Queue({});
+    });
+
+    then("`queue.order` is `Order.FIFO`", () => {
+      expect(queue.order).toBe(Order.FIFO);
+    });
+  });
 });
 
 // Data
