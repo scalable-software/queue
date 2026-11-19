@@ -1955,4 +1955,42 @@ events(Event.ON_UNAVAILABLE, () => {
       });
     });
   });
+
+  and("a queue with `storage` is ready, and `queue.onunavailable` is assigned a listener", () => {
+    let storage: string;
+    let queue: Queue;
+    let onunavailable: jasmine.Spy;
+    beforeEach(async () => {
+      storage = unique();
+      queue = await reopen(storage);
+      onunavailable = jasmine.createSpy("onunavailable");
+      queue.onunavailable = onunavailable;
+    });
+    afterEach(() => drop(storage));
+
+    when("the browser refuses to write, and `a` then `b` are added", () => {
+      beforeEach(async () => {
+        spyOn(IDBDatabase.prototype, "transaction").and.throwError(
+          new DOMException("refused", "QuotaExceededError")
+        );
+        queue.add({ id: "a" });
+        queue.add({ id: "b" });
+        await settle();
+      });
+
+      then("the listener is called once, with `detail.persisted` `false`", () => {
+        expect(onunavailable).toHaveBeenCalledOnceWith(
+          jasmine.objectContaining({ detail: { persisted: false } })
+        );
+      });
+
+      then("`queue.persisted` is `false`", () => {
+        expect(queue.persisted).toBe(false);
+      });
+
+      then("`queue.waiting` holds `a` and `b`", () => {
+        expect(queue.waiting.map(({ id }) => id)).toEqual(["a", "b"]);
+      });
+    });
+  });
 });
