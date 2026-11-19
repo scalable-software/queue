@@ -11,8 +11,6 @@ module.exports = function (config) {
     },
     files: [
       { pattern: "./test/helper/helper.js" },
-      { pattern: "./src/*.css" },
-      { pattern: "./src/*.html" },
       { pattern: "./importmap/inject.js" },
       { pattern: "./importmap/importmap.test.js" },
       {
@@ -29,7 +27,7 @@ module.exports = function (config) {
     reporters: ["spec", "coverage-istanbul", "json"],
     jsonReporter: {
       dir: "./report",
-      filename: "component.template.report.json"
+      filename: "queue.report.json"
     },
     coverageIstanbulInstrumenter: {
       esModules: true

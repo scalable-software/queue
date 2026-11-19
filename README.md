@@ -1,98 +1,41 @@
 ![License: CC BY-NC-SA 4.0](https://flat.badgen.net/static/license/CC-BY-NC-SA-4.0/green)
 
-# Component Template
+# Queue
 
-This is a template for creating a new component. It includes a basic structure for the component, as well as a set of scripts for building, testing, and documenting the component.
+The **Queue** is a reactive queue for web components built with Scalable.Software standards and practices. A host component creates a queue for itself and keeps it in a private field. The queue holds items with an id and a priority, hands them out in order, keeps them in IndexedDB so that they survive a reload, and dispatches an event for every change.
 
-## Getting Started
+The Queue is an add-on, not a custom element: it extends **EventTarget**, and has no tag, template, stylesheet or attributes. It runs in the browser only.
 
-To create a new component, you can use this template as a starting point. To do so, click the "Use this template" button at the top of the repository page. This will create a new repository with the same structure as this one.
+> The Queue is being built. Its requirements are in [`specifications/queue.requirements.md`](specifications/queue.requirements.md), and its contract grows in [`specifications/queue.specifications.json`](specifications/queue.specifications.json) one story at a time. This README describes the API once it exists.
 
-Once you have created a new repository, you can clone it to your local machine and start working on your component.
+## Installation
 
 ```bash
-git clone
+npm install @scalable.software/queue
 ```
 
-## Install Dependencies
+```js
+import { Queue } from "@scalable.software/queue";
+```
 
-1. Before creating a new component, first install the dependencies:
+The metadata (`State`, `Operation`, `Event`) is also importable on its own as `@scalable.software/queue/meta`. It needs neither the DOM nor the `Queue` class.
+
+## Development
 
 ```bash
 npm install
 ```
 
-2. Then run the `test` to ensure everything is in working order:
+| Command | What it does |
+|---|---|
+| `npm test` | checks the specification, compiles, and runs the suite in headless Chrome |
+| `npm run check.specification` | checks the specification against the schema in each policy |
+| `npm run build` | compiles to `dist/` |
+| `npm run serve` | builds and opens the demo page |
+| `npm run document` | regenerates the API docs in `docs/` |
+| `npm run clean.test` | removes compiled test output; run it after a failed `npm test` |
 
-```bash
-npm test
-```
-
-> note: a coverage and test report will be generated in the `coverage` directory and `report` directory, respectively.
-
-3. Finally, run the `document` script to generate the component API documentation:
-
-```bash
-npm run document
-```
-
-> note: The API documentation will be generated in the `docs` directory. You can review this by opening the `index.html` file in the `docs` directory in a web browser.
-
-## Creating a New Component
-
-To create a new component, you should first update the package metadata:
-
-## Update Package Metadata
-
-Update the package name across all relevant files in this project:
-
-1. Specifications: update name and add package metadata in the `component.specifications.json` file in the `specifications` directory.
-
-2. Package: `package.json` in the `root` directory.
-
-3. Typescript Config: both `tsconfig.json` files are in the `root` directory.
-
-4. ES Module: `importmap.js` files in the `importmap` directory.
-
-5. Component: update the file names in `src` folder and class name.
-
-6. Unit Testing: The `wallaby.js` and `karma.conf.js` files are in the `root` directory, the file names and the package name used in unit tests: `test/unit`
-
-7. Demo: The `index.js` file in the `demo` directory.
-
-8. Confirm that the component name has been updated in all relevant files by running the `test` script:
-
-```bash
-npm test
-```
-
-## Creating a New Component
-
-To create a new component:
-
-1. Review the directory and file structure of the fake `component` implementation.
-2. Study this software architecture implementation policies (available from repository owner).
-3. Define the component specifications using the `component.specifications.json` template file provided.
-4. Stickly follow a TDD development approach in feature branches.
-5. After complete implementation of a feature, `test`, `build`, and generate the `documentation` (see below)
-6. Update the demo scaffold in the `demo` directory to reflect the new component's API and functionality.
-7. Lastly do a pull request to the `main` branch and merge it if everything checks out.
-
-### Testing the Component
-
-To test the component, you can use the `test` script. This script will run the component's test suite and generate both a test and coverage report.
-
-```bash
-npm test
-```
-
-### Document the Component API
-
-To document the component API, you can use the `docs` script. This script will generate a set of documentation files for the component.
-
-```bash
-npm run document
-```
+A coverage report is written to `coverage/` and a test report to `report/`.
 
 ## License
 

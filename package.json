@@ -1,19 +1,29 @@
 {
-  "name": "@scalable.software/component.template",
+  "name": "@scalable.software/queue",
   "version": "0.4.0",
-  "description": "A template for creating web components using Scalable.Software standards and practices.",
+  "description": "A reactive, persistent queue add-on for web components: it holds items with an id and a priority, hands them out in order, keeps them in IndexedDB and dispatches an event for every change.",
   "keywords": [
-    "web component"
+    "web component queue addon"
+  ],
+  "files": [
+    "dist",
+    "!dist/.gitkeep"
   ],
   "exports": {
     ".": {
+      "types": "./dist/index.d.ts",
       "import": "./dist/index.js"
+    },
+    "./meta": {
+      "types": "./dist/queue.meta.d.ts",
+      "default": "./dist/queue.meta.js"
     }
   },
   "types": "dist/index.d.ts",
   "scripts": {
     "clean.test": "node ./tasks/clean.test.mjs",
-    "pretest": "npm run clean.test && tsc --project tsconfig.test.json",
+    "check.specification": "node ./tasks/check.specification.mjs",
+    "pretest": "npm run clean.test && npm run check.specification && tsc --project tsconfig.test.json",
     "test": "karma start",
     "posttest": "npm run clean.test",
     "prebuild": "node ./tasks/clean.build.mjs",
@@ -22,21 +32,22 @@
     "preserve": "npm run build",
     "serve": "web-dev-server --open /demo/index.html",
     "document": "npx typedoc --tsconfig tsconfig.test.json",
-    "prepublish": "npm run build"
+    "prepublishOnly": "npm run build"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/scalable-software/component.template.git"
+    "url": "git+https://github.com/scalable-software/queue.git"
   },
   "author": "Scalable.Software",
   "license": "CC-BY-NC-SA-4.0",
   "bugs": {
-    "url": "https://github.com/scalable-software/component.template/issues"
+    "url": "https://github.com/scalable-software/queue/issues"
   },
-  "homepage": "https://github.com/scalable-software/component.template#readme",
+  "homepage": "https://github.com/scalable-software/queue#readme",
   "devDependencies": {
     "@types/jasmine": "^5.1.4",
     "@web/dev-server": "^0.4.6",
+    "ajv": "^8.20.0",
     "jasmine": "^5.1.0",
     "karma": "^6.4.3",
     "karma-chrome-launcher": "^3.2.0",
