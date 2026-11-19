@@ -282,6 +282,41 @@ state(State.READY, () => {
       expect(queue.ready).toBe(true);
     });
   });
+
+  given("a queue with `storage` is ready, and `a` and `b` are added", () => {
+    let storage: string;
+    let second: Queue;
+    beforeEach(async () => {
+      storage = unique();
+      const first = await reopen(storage);
+      first.add({ id: "a" });
+      first.add({ id: "b" });
+    });
+    afterEach(() => drop(storage));
+
+    when("a second queue with the same `storage` adds `c` before it is ready", () => {
+      beforeEach(async () => {
+        second = new Queue({ storage });
+        second.add({ id: "c" });
+        await ready(second);
+      });
+
+      then("its `waiting` holds `a`, `b`, then `c`", () => {
+        expect(second.waiting.map(({ id }) => id)).toEqual(["a", "b", "c"]);
+      });
+
+      when("a third queue with the same `storage` is ready", () => {
+        let third: Queue;
+        beforeEach(async () => {
+          third = await reopen(storage);
+        });
+
+        then("its `waiting` holds `a`, `b`, then `c`", () => {
+          expect(third.waiting.map(({ id }) => id)).toEqual(["a", "b", "c"]);
+        });
+      });
+    });
+  });
 });
 
 state(State.PERSISTED, () => {
