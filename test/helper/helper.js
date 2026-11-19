@@ -54,6 +54,16 @@ globalThis.state = (state, spec) => {
     spec();
   });
 };
+globalThis.data = (data, spec) => {
+  describe(`Data.${data} test`, () => {
+    beforeEach(() => {
+      setSpecProperty("type", "Data");
+      setSpecProperty("spec", data);
+    });
+
+    spec();
+  });
+};
 globalThis.operation = (operation, spec) => {
   describe(`Operation.${operation} test`, () => {
     beforeEach(() => {
@@ -165,3 +175,12 @@ const setAttributes = (element, attributes) => (
   ),
   element
 );
+
+globalThis.hasGetter = (obj, propName) => {
+  while (obj) {
+    let descriptor = Object.getOwnPropertyDescriptor(obj, propName);
+    if (descriptor) return !!descriptor.get;
+    obj = Object.getPrototypeOf(obj);
+  }
+  return false;
+};
