@@ -71,3 +71,8 @@ the item without losing its place or its progress, so that the queue stays corre
 
 As a **host component**, when the work for an item is done or is no longer needed, I want to
 remove the item, so that the queue holds only the work that remains.
+
+### STORY: Put an Item Back
+
+As a **host component**, when the work on an item could not be finished, I want to put the
+item back among the waiting items, so that it is handed out again instead of being lost.
