@@ -224,6 +224,13 @@ export class Queue<T extends object = Record<string, unknown>>
   public get persisted(): Persisted {
     return this._persisted;
   }
+  private set persisted(persisted: Persisted) {
+    // Guard
+    if (this._persisted === persisted) return;
+
+    // Mutate
+    this._persisted = persisted;
+  }
 
   /**
    * The items that wait to be handed out, in the order `take()` hands them out
@@ -487,6 +494,7 @@ export class Queue<T extends object = Record<string, unknown>>
    */
   private _restore = async () => {
     const stored = (await this._storage?.read()) ?? [];
+    this.persisted = Boolean(this._storage);
 
     // The queue keeps the items added since it was created, before any stored with the same id
     const restored = stored
