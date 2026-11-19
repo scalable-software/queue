@@ -1446,4 +1446,41 @@ events(Event.ON_EMPTY, () => {
       });
     });
   });
+
+  and("a queue is created, and every event it dispatches is recorded in order", () => {
+    let queue: Queue;
+    let order: string[];
+    beforeEach(() => {
+      queue = new Queue();
+      order = [];
+      Object.values(Event).forEach((name) =>
+        queue.addEventListener(name, (event) => order.push(event.type))
+      );
+    });
+
+    when("`a` is added, taken, put back, taken again and removed", () => {
+      beforeEach(() => {
+        queue.add({ id: "a" });
+        queue.take();
+        queue.putBack("a");
+        queue.take();
+        queue.remove("a");
+      });
+
+      then("each item event comes before the condition event it causes", () => {
+        expect(order).toEqual([
+          Event.ON_ADD,
+          Event.ON_WAITING,
+          Event.ON_TAKE,
+          Event.ON_BUSY,
+          Event.ON_PUT_BACK,
+          Event.ON_WAITING,
+          Event.ON_TAKE,
+          Event.ON_BUSY,
+          Event.ON_REMOVE,
+          Event.ON_EMPTY
+        ]);
+      });
+    });
+  });
 });
