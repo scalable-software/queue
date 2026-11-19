@@ -437,6 +437,7 @@ export class Queue<T extends object = Record<string, unknown>>
 
     this.working = this.working.filter((item) => item.id !== id);
     this.waiting = [...this.waiting, item];
+    this._save(id);
 
     this._dispatch(Event.ON_PUT_BACK, { item: this._find(id) });
 
