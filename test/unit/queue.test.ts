@@ -1801,4 +1801,25 @@ events(Event.ON_READY, () => {
       );
     });
   });
+
+  and("a queue with `storage` holds `a`, and a second queue with the same `storage` records its events", () => {
+    let storage: string;
+    let order: string[];
+    beforeEach(async () => {
+      storage = unique();
+      const first = await reopen(storage);
+      first.add({ id: "a" });
+      const second = new Queue({ storage });
+      order = [];
+      Object.values(Event).forEach((name) =>
+        second.addEventListener(name, (event) => order.push(event.type))
+      );
+      await ready(second);
+    });
+    afterEach(() => drop(storage));
+
+    then("the events are `onready`, then `onwaiting`, and no `onadd`", () => {
+      expect(order).toEqual([Event.ON_READY, Event.ON_WAITING]);
+    });
+  });
 });
