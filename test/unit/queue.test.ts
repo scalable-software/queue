@@ -236,6 +236,14 @@ state(State.READY, () => {
     then("`queue.ready` is `false`", () => {
       expect(queue.ready).toBe(false);
     });
+
+    then("assigning `queue.ready` does not compile", () => {
+      const assign = () => {
+        // @ts-expect-error: `ready` is set by the queue
+        queue.ready = true;
+      };
+      expect(assign).toEqual(jasmine.any(Function));
+    });
   });
 
   given("a queue is created, and the constructor has returned", () => {
