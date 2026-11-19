@@ -275,6 +275,23 @@ metadata(Metadata.EVENT, () => {
       then("Event is an object", () => {
         expect(typeof Event).toBe("object");
       });
+
+      when("Event is an object", () => {
+        then("`Event.ON_ADD` exists", () => {
+          expect(Event.ON_ADD).toBeDefined();
+        });
+
+        then("`Event.ON_ADD` is `onadd`", () => {
+          expect(Event.ON_ADD).toBe("onadd");
+        });
+
+        then("no event name is taken by `EventTarget`", () => {
+          const taken = Object.values(Event).filter(
+            (name) => name in EventTarget.prototype
+          );
+          expect(taken).toEqual([]);
+        });
+      });
     });
   });
 });

@@ -5,7 +5,8 @@ import {
   Condition,
   Datum,
   Priority,
-  Operation
+  Operation,
+  Event
 } from "@scalable.software/queue";
 
 import type { Item } from "@scalable.software/queue";
@@ -984,3 +985,16 @@ operation(Operation.PUT_BACK, () => {
 });
 
 // Event
+
+events(Event.ON_ADD, () => {
+  and("a queue is created", () => {
+    let queue: Queue;
+    beforeEach(() => {
+      queue = new Queue();
+    });
+
+    then("`queue.onadd` setter exists", () => {
+      expect(hasSetter(queue, Event.ON_ADD)).toBe(true);
+    });
+  });
+});
