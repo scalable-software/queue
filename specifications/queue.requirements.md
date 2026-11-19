@@ -61,3 +61,8 @@ As a **host component**, when some work is more urgent than other work, I want t
 hand out the highest priority first, and the earliest added first among equals, so that
 urgent work is done first; and when I do not ask for this, I want the first item in to be the
 first out, so that work is done in the order it arrived.
+
+### STORY: Change an Item
+
+As a **host component**, when the details or the urgency of an item change, I want to change
+the item without losing its place or its progress, so that the queue stays correct.
