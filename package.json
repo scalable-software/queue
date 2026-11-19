@@ -1,9 +1,9 @@
 {
-  "name": "@scalable.software/component.template",
+  "name": "@scalable.software/queue",
   "version": "0.4.0",
-  "description": "A template for creating web components using Scalable.Software standards and practices.",
+  "description": "A reactive, persistent queue add-on for web components: it holds items with an id and a priority, hands them out in order, keeps them in IndexedDB and dispatches an event for every change.",
   "keywords": [
-    "web component"
+    "web component queue addon"
   ],
   "exports": {
     ".": {
@@ -26,14 +26,14 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/scalable-software/component.template.git"
+    "url": "git+https://github.com/scalable-software/queue.git"
   },
   "author": "Scalable.Software",
   "license": "CC-BY-NC-SA-4.0",
   "bugs": {
-    "url": "https://github.com/scalable-software/component.template/issues"
+    "url": "https://github.com/scalable-software/queue/issues"
   },
-  "homepage": "https://github.com/scalable-software/component.template#readme",
+  "homepage": "https://github.com/scalable-software/queue#readme",
   "devDependencies": {
     "@types/jasmine": "^5.1.4",
     "@web/dev-server": "^0.4.6",

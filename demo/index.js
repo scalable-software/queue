@@ -1,4 +1,4 @@
-import { component } from "@scalable.software/component.template";
+import { component } from "@scalable.software/queue";
 
 await component.Template.load("component.template.html");
 

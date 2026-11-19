@@ -5,7 +5,7 @@ import {
   Tag,
   CSS,
   Attributes
-} from "@scalable.software/component.template";
+} from "@scalable.software/queue";
 
 // Configuration
 configuration(Configuration.TAG, () => {

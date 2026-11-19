@@ -29,7 +29,7 @@ module.exports = function (config) {
     reporters: ["spec", "coverage-istanbul", "json"],
     jsonReporter: {
       dir: "./report",
-      filename: "component.template.report.json"
+      filename: "queue.report.json"
     },
     coverageIstanbulInstrumenter: {
       esModules: true
