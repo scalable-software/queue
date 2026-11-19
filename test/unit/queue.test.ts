@@ -179,6 +179,20 @@ state(State.CONDITION, () => {
       expect(queue.condition).toBe(Condition.EMPTY);
     });
   });
+
+  given("a queue is created, and `a` is added, taken and put back", () => {
+    let queue: Queue;
+    beforeEach(() => {
+      queue = new Queue();
+      queue.add({ id: "a" });
+      queue.take();
+      queue.putBack("a");
+    });
+
+    then("`queue.condition` is `Condition.WAITING`", () => {
+      expect(queue.condition).toBe(Condition.WAITING);
+    });
+  });
 });
 
 // Data
