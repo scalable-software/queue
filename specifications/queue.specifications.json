@@ -49,6 +49,17 @@
       "description": "Returns the item `take()` would hand out, without taking it, or `null` when no item waits. Changes nothing.",
       "parameters": [],
       "returns": "Item | null"
+    },
+    "update": {
+      "description": "Changes the item with the given `id`: the given fields replace the item's own, and every other field is kept. The item keeps its place, or, in a priority queue whose item changes priority, takes the place its new priority gives it; it stays waiting or being worked on. Throws as `add` does for an invalid item, except that `priority` keeps the item's own when absent. An id the queue does not hold changes nothing.",
+      "parameters": [
+        {
+          "name": "item",
+          "type": "Item",
+          "description": "The `id` of the item to change, and the fields to change."
+        }
+      ],
+      "returns": "void"
     }
   },
   "Events": {
@@ -74,6 +85,21 @@
           "name": "detail",
           "type": "object",
           "description": "Contains the item as the queue holds it.",
+          "properties": {
+            "item": {
+              "type": "Item"
+            }
+          }
+        }
+      ]
+    },
+    "onupdate": {
+      "description": "Dispatched when an item is changed.",
+      "parameters": [
+        {
+          "name": "detail",
+          "type": "object",
+          "description": "Contains the changed item as the queue holds it.",
           "properties": {
             "item": {
               "type": "Item"
