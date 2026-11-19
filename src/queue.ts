@@ -6,6 +6,9 @@
 import { Order } from "./queue.meta.js";
 import type { Meta, Options } from "./queue.meta.js";
 
+// Validation
+import { Validate } from "./queue.validation.js";
+
 /**
  * A reactive queue that a host component creates for itself and keeps in a private field.
  * It is an add-on, not a custom element: an `EventTarget` with no tag, template or stylesheet.
@@ -26,7 +29,9 @@ export class Queue extends EventTarget implements Meta {
   constructor(options: Options = {}) {
     super();
 
-    this._order = options.order ?? Order.FIFO;
+    const { order } = Validate.options(options);
+
+    this._order = order ?? Order.FIFO;
   }
 
   /**
