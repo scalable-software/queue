@@ -1,0 +1,9 @@
+{
+  "Component": "Queue",
+  "Package": "queue",
+  "Description": "The Queue is a reactive queue that a host component creates for itself and keeps in a private field. It holds items with an id and a priority, hands them out in order, keeps them in IndexedDB so they survive a reload, and dispatches an event for every change. It is an EventTarget-based add-on rather than a custom element: it declares no Tag, Composition or Gestures.",
+  "Data": {},
+  "States": {},
+  "Operations": {},
+  "Events": {}
+}
