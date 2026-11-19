@@ -124,6 +124,21 @@ state(State.ORDER, () => {
       expect(error.message).toBe("Invalid options value: order is invalid");
     });
   });
+
+  given("a queue is created with `{ storage: \"\" }`", () => {
+    let error: Error;
+    beforeEach(() => {
+      try {
+        new Queue({ storage: "" });
+      } catch (err) {
+        error = err as Error;
+      }
+    });
+
+    then("error message is 'Invalid options value: storage is invalid'", () => {
+      expect(error?.message).toBe("Invalid options value: storage is invalid");
+    });
+  });
 });
 
 state(State.CONDITION, () => {
