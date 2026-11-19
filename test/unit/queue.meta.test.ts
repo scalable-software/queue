@@ -275,6 +275,14 @@ metadata(Metadata.OPERATION, () => {
           );
           expect(taken).toEqual([]);
         });
+
+        then("`Operation.CLEAR` exists", () => {
+          expect(Operation.CLEAR).toBeDefined();
+        });
+
+        then("`Operation.CLEAR` is `clear`", () => {
+          expect(Operation.CLEAR).toBe("clear");
+        });
       });
     });
   });

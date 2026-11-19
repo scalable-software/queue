@@ -1348,6 +1348,19 @@ operation(Operation.PUT_BACK, () => {
   });
 });
 
+operation(Operation.CLEAR, () => {
+  and("a queue is created", () => {
+    let queue: Queue;
+    beforeEach(() => {
+      queue = new Queue();
+    });
+
+    then("`queue.clear` exists", () => {
+      expect(queue.clear).toBeDefined();
+    });
+  });
+});
+
 // Event
 
 events(Event.ON_ADD, () => {
