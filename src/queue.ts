@@ -3,7 +3,7 @@
  */
 
 // Metadata
-import { Order } from "./queue.meta.js";
+import { Order, Condition } from "./queue.meta.js";
 import type { Meta, Options } from "./queue.meta.js";
 
 // Validation
@@ -23,6 +23,13 @@ export class Queue extends EventTarget implements Meta {
   private _order: Order = Order.FIFO;
 
   /**
+   * The condition of the queue as a whole, computed from its items
+   * @category State
+   * @hidden
+   */
+  private _condition: Condition = Condition.EMPTY;
+
+  /**
    * Create a queue; `options.order` chooses the order in which it hands out its items
    * @category Lifecycle
    */
@@ -40,5 +47,14 @@ export class Queue extends EventTarget implements Meta {
    */
   public get order(): Order {
     return this._order;
+  }
+
+  /**
+   * The condition of the queue as a whole: `empty`, `waiting` while any item waits,
+   * or `busy` while items are being worked on and none waits
+   * @category State
+   */
+  public get condition(): Condition {
+    return this._condition;
   }
 }

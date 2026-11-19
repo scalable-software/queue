@@ -8,7 +8,8 @@
  * @enum
  */
 export const State = {
-  ORDER: "order"
+  ORDER: "order",
+  CONDITION: "condition"
 } as const;
 
 /**
@@ -32,6 +33,23 @@ export const Order = {
  * @category Metadata: State
  */
 export type Order = (typeof Order)[keyof typeof Order];
+
+/**
+ * Value domain of the `condition` state: the condition of the queue as a whole
+ * @category Metadata: State
+ * @enum
+ */
+export const Condition = {
+  EMPTY: "empty",
+  WAITING: "waiting",
+  BUSY: "busy"
+} as const;
+
+/**
+ * Value domain of the `condition` state
+ * @category Metadata: State
+ */
+export type Condition = (typeof Condition)[keyof typeof Condition];
 
 /**
  * The options a host component gives the queue when it creates it; read once, not kept
