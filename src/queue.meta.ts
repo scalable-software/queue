@@ -135,7 +135,9 @@ export type Operation = (typeof Operation)[keyof typeof Operation];
  * @category Metadata: Events
  * @enum
  */
-export const Event = {} as const;
+export const Event = {
+  ON_ADD: "onadd"
+} as const;
 
 /**
  * Event names dispatched by the Queue

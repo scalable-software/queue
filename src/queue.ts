@@ -3,7 +3,7 @@
  */
 
 // Metadata
-import { Order, Condition, Priority } from "./queue.meta.js";
+import { Order, Condition, Priority, Event } from "./queue.meta.js";
 import type { Entry, Item, Items, Meta, Options } from "./queue.meta.js";
 
 // Validation
@@ -66,6 +66,13 @@ export class Queue<T extends object = Record<string, unknown>>
    * @hidden
    */
   private _count = 0;
+
+  /**
+   * The handler of `onadd`
+   * @category Events
+   * @hidden
+   */
+  private _onadd: EventListener | null = null;
 
   /**
    * Create a queue; `options.order` chooses the order in which it hands out its items
@@ -134,6 +141,15 @@ export class Queue<T extends object = Record<string, unknown>>
 
     // Mutate
     this._working = Object.freeze(items);
+  }
+
+  /**
+   * Dispatched when an item is added, with the item as the queue holds it in `detail.item`
+   * @event
+   * @category Events
+   */
+  public set onadd(handler: EventListener | null) {
+    this._onadd = this._subscribe(Event.ON_ADD, this._onadd, handler);
   }
 
   /**
@@ -220,6 +236,30 @@ export class Queue<T extends object = Record<string, unknown>>
     this.waiting = [...this.waiting, item];
 
     this._syncCondition();
+  };
+
+  /**
+   * Replace the handler of an event: remove the current one, then add the next one.
+   * The next handler is checked before anything changes, so a rejected value leaves
+   * the current handler in place.
+   * @param event - The name of the event
+   * @param current - The handler stored now, or `null`
+   * @param next - The handler to store: a function, or `null` or `undefined` to remove
+   * @returns the handler to store: the function, or `null`
+   * @throws when `next` is neither a function nor `null` or `undefined`
+   * @hidden
+   */
+  private _subscribe = (
+    event: string,
+    current: EventListener | null,
+    next: unknown
+  ): EventListener | null => {
+    next = next ?? null;
+    const valid = next === null || typeof next === "function";
+    if (!valid) throw new Error(`Invalid ${event} value: ${next}`);
+    current && this.removeEventListener(event, current);
+    next && this.addEventListener(event, next as EventListener);
+    return next as EventListener | null;
   };
 
   /**
