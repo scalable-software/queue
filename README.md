@@ -2,11 +2,11 @@
 
 # Queue
 
-The **Queue** is a reactive queue for web components built with Scalable.Software standards and practices. A host component creates a queue for itself and keeps it in a private field. The queue holds items with an id and a priority, hands them out in order, and dispatches an event for every change, so that the component reacts to the queue instead of checking it.
+The **Queue** is a reactive queue for web components built with Scalable.Software standards and practices. A host component creates a queue for itself and keeps it in a private field. The queue holds items with an id and a priority, hands them out in order, keeps them in IndexedDB so that they survive a reload, and dispatches an event for every change, so that the component reacts to the queue instead of checking it.
 
 The Queue is an add-on, not a custom element: it extends **EventTarget**, and has no tag, template, stylesheet or attributes. It runs in the browser only. A queue belongs to one component: it is not shared between components, workers or tabs.
 
-> Keeping the items in IndexedDB, so that they survive a reload, is the next feature, Persistent Queue. Until then a queue lives in memory. The requirements are in [`specifications/queue.requirements.md`](specifications/queue.requirements.md), and the contract in [`specifications/queue.specifications.json`](specifications/queue.specifications.json).
+The requirements are in [`specifications/queue.requirements.md`](specifications/queue.requirements.md), and the contract in [`specifications/queue.specifications.json`](specifications/queue.specifications.json).
 
 ## Installation
 
@@ -28,10 +28,12 @@ import { Queue, Order } from "@scalable.software/queue";
 type Upload = { file: File };
 
 class Uploader extends HTMLElement {
-  #queue = new Queue<Upload>({ order: Order.PRIORITY });
+  #queue = new Queue<Upload>({ order: Order.PRIORITY, storage: "uploads" });
 
   constructor() {
     super();
+    this.#queue.onready = () => this.#queue.working.forEach(({ id }) => this.#queue.putBack(id));
+    this.#queue.onunavailable = () => console.warn("uploads will not survive a reload");
     this.#queue.onadd = ({ detail }: CustomEvent) => console.log("queued", detail.item.id);
     this.#queue.onbusy = () => this.setAttribute("busy", "");
     this.#queue.onempty = () => this.removeAttribute("busy");
@@ -53,9 +55,11 @@ class Uploader extends HTMLElement {
 }
 ```
 
-Retrying, timing out and scheduling are the host's to decide: the queue never hands an item out by itself.
+Retrying, timing out and scheduling are the host's to decide: the queue never hands an item out by itself. So is what happens to items that were being worked on when the page closed: here they are put back once the queue is ready.
 
-To try the queue by hand, run `npm run serve`: the demo page adds, takes, changes, removes and puts back items, and logs every event.
+A `File` survives `structuredClone` and IndexedDB, so the uploads above are still queued after a reload.
+
+To try the queue by hand, run `npm run serve`: the demo page adds, takes, changes, removes, puts back and clears items, keeps them under a `storage` of your choice, and logs every event.
 
 ## Items
 
@@ -78,6 +82,19 @@ The order is chosen once, when the queue is created, and read from `queue.order`
 
 An item keeps the place its first addition gave it: it keeps it when it is changed, and gets it back when it is put back.
 
+## Storage
+
+The `storage` option names the IndexedDB database that keeps the queue: `new Queue({ order, storage })`.
+
+- **Restored:** a queue created with a `storage` brings back the items it held, waiting or being worked on, in the order they had. No `onadd` is dispatched for them.
+- **Ready:** `queue.ready` is `false` when the queue is created, and `true` once its stored items are back, after the constructor has returned; `onready` is dispatched then, with or without `storage`. Take work after `onready`. Operations work at any time: items added before then are kept after the restored ones, and an added item replaces a stored one with the same id.
+- **In step:** every operation acts in memory at once; the database follows behind it.
+- **Separate:** each `storage` is a database of its own; queues with different names never mix. A queue is not kept in step between tabs that open the same `storage`.
+- **Refused:** when the browser refuses to open, read or write the database, for example in a private window, the queue goes on in memory, `queue.persisted` is `false`, and `onunavailable` is dispatched once.
+- **Cleared:** `clear()` removes every item and deletes the database; afterwards the queue lives in memory only.
+
+Without `storage`, the queue lives in memory only.
+
 ## Data
 
 | Property | Holds |
@@ -93,6 +110,8 @@ Both are readonly, frozen lists.
 |---|---|---|
 | `order` | `fifo`, `priority` | readonly, chosen when the queue is created |
 | `condition` | `empty`, `waiting`, `busy` | readonly: `waiting` while any item waits, `busy` while items are worked on and none waits |
+| `ready` | `false`, `true` | readonly: `true` once the stored items are back |
+| `persisted` | `false`, `true` | readonly: `true` while the database keeps the items |
 
 ## Operations
 
@@ -104,6 +123,7 @@ Both are readonly, frozen lists.
 | `update(item)` | changes the item with `item.id`: the given fields replace its own, and it keeps its place and progress | `void` |
 | `remove(id)` | removes the item, waiting or being worked on | `void` |
 | `putBack(id)` | puts an item that is being worked on back among the waiting items | `void` |
+| `clear()` | removes every item, then deletes the database named by `storage` | a `Promise` that resolves once the database is deleted |
 
 `update`, `remove` and `putBack` do nothing for an id the queue does not hold (and `putBack` for an item that waits).
 
@@ -119,14 +139,16 @@ Both are readonly, frozen lists.
 | `onwaiting` | `condition` changes to `waiting` | `{ condition }` |
 | `onbusy` | `condition` changes to `busy` | `{ condition }` |
 | `onempty` | `condition` changes to `empty` | `{ condition }` |
+| `onready` | the stored items are back | `{ ready }`, `true` |
+| `onunavailable` | the browser refuses the database | `{ persisted }`, `false` |
 
-Assigning an `on…` property replaces its listener, and `null` removes it; `addEventListener` with the same names works too. `detail.item` is the item as the queue holds it. A condition event comes after the event for the item that caused it.
+Assigning an `on…` property replaces its listener, and `null` removes it; `addEventListener` with the same names works too. `detail.item` is the item as the queue holds it. A condition event comes after the event for the item that caused it, and after `onready` for the items restored.
 
 ## Errors
 
 | Thrown by | Message |
 |---|---|
-| `new Queue(options)` | `Invalid options value: <value>`, `Invalid options value: order is invalid` |
+| `new Queue(options)` | `Invalid options value: <value>`, `Invalid options value: order is invalid`, `… storage is invalid` |
 | `add`, `update` | `Invalid item value: <value>`, `Invalid item value: id is required`, `… id is invalid`, `… priority is invalid` |
 | `add` | `Invalid item value: id is already in the queue` |
 | `remove`, `putBack` | `Invalid id value: <value>` |
