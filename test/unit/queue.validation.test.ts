@@ -202,3 +202,12 @@ validation("item", () => {
     ]);
   });
 });
+
+validation("item", () => {
+  given("Validate is imported", () => {
+    rejects("item", (value) => Validate.item(value), [
+      [{}, "Invalid item value: id is required"],
+      [{ priority: 1 }, "Invalid item value: id is required"]
+    ]);
+  });
+});
