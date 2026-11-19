@@ -57,7 +57,8 @@ export type Condition = (typeof Condition)[keyof typeof Condition];
  * @enum
  */
 export const Datum = {
-  WAITING: "waiting"
+  WAITING: "waiting",
+  WORKING: "working"
 } as const;
 
 /**

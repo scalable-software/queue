@@ -40,6 +40,13 @@ export class Queue<T extends object = Record<string, unknown>>
   private _waiting: Items<T> = Object.freeze([]);
 
   /**
+   * The items that have been taken and are being worked on, in the order they were taken
+   * @category Data
+   * @hidden
+   */
+  private _working: Items<T> = Object.freeze([]);
+
+  /**
    * Create a queue; `options.order` chooses the order in which it hands out its items
    * @category Lifecycle
    */
@@ -74,5 +81,13 @@ export class Queue<T extends object = Record<string, unknown>>
    */
   public get waiting(): Items<T> {
     return this._waiting;
+  }
+
+  /**
+   * The items that have been taken and are being worked on, in the order they were taken
+   * @category Data
+   */
+  public get working(): Items<T> {
+    return this._working;
   }
 }
