@@ -1231,4 +1231,31 @@ events(Event.ON_REMOVE, () => {
       expect(hasSetter(queue, Event.ON_REMOVE)).toBe(true);
     });
   });
+
+  and("a queue is created, `a` is added, and `queue.onremove` is assigned a listener", () => {
+    let queue: Queue;
+    let onremove: jasmine.Spy;
+    let held: Item;
+    beforeEach(() => {
+      queue = new Queue();
+      queue.add({ id: "a" });
+      held = queue.waiting[0];
+      onremove = jasmine.createSpy("onremove");
+      queue.onremove = onremove;
+    });
+
+    when("`queue.remove(\"a\")` is invoked", () => {
+      beforeEach(() => {
+        queue.remove("a");
+      });
+
+      then("the listener is called once", () => {
+        expect(onremove).toHaveBeenCalledTimes(1);
+      });
+
+      then("`detail.item` is the item as the queue held it", () => {
+        expect(onremove.calls.mostRecent().args[0].detail.item).toBe(held);
+      });
+    });
+  });
 });
