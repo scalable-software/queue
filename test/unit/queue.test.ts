@@ -1574,3 +1574,16 @@ events(Event.ON_EMPTY, () => {
     });
   });
 });
+
+events(Event.ON_READY, () => {
+  and("a queue is created", () => {
+    let queue: Queue;
+    beforeEach(() => {
+      queue = new Queue();
+    });
+
+    then("`queue.onready` setter exists", () => {
+      expect(hasSetter(queue, Event.ON_READY)).toBe(true);
+    });
+  });
+});

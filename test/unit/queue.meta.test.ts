@@ -357,6 +357,14 @@ metadata(Metadata.EVENT, () => {
           expect(Event.ON_EMPTY).toBe("onempty");
         });
 
+        then("`Event.ON_READY` exists", () => {
+          expect(Event.ON_READY).toBeDefined();
+        });
+
+        then("`Event.ON_READY` is `onready`", () => {
+          expect(Event.ON_READY).toBe("onready");
+        });
+
         then("no event name is taken by `EventTarget`", () => {
           const taken = Object.values(Event).filter(
             (name) => name in EventTarget.prototype
