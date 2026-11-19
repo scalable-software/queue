@@ -150,6 +150,23 @@ data(Datum.WAITING, () => {
   });
 });
 
+data(Datum.WORKING, () => {
+  given("a queue is created", () => {
+    let queue: Queue;
+    beforeEach(() => {
+      queue = new Queue();
+    });
+
+    then("`queue.working` getter exists", () => {
+      expect(hasGetter(queue, Datum.WORKING)).toBe(true);
+    });
+
+    then("`queue.working` is empty", () => {
+      expect(queue.working).toEqual([]);
+    });
+  });
+});
+
 // Operation
 
 // Event

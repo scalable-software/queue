@@ -125,6 +125,14 @@ metadata(Metadata.DATUM, () => {
         then("`Datum.WAITING` is `waiting`", () => {
           expect(Datum.WAITING).toBe("waiting");
         });
+
+        then("`Datum.WORKING` exists", () => {
+          expect(Datum.WORKING).toBeDefined();
+        });
+
+        then("`Datum.WORKING` is `working`", () => {
+          expect(Datum.WORKING).toBe("working");
+        });
       });
     });
   });
