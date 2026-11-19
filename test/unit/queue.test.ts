@@ -375,6 +375,26 @@ state(State.PERSISTED, () => {
       expect(queue.persisted).toBe(true);
     });
   });
+
+  given("a queue without `storage` is ready", () => {
+    let queue: Queue;
+    beforeEach(async () => {
+      queue = new Queue();
+      await ready(queue);
+    });
+
+    then("`queue.persisted` is `false`", () => {
+      expect(queue.persisted).toBe(false);
+    });
+
+    then("assigning `queue.persisted` does not compile", () => {
+      const assign = () => {
+        // @ts-expect-error: `persisted` is set by the queue
+        queue.persisted = true;
+      };
+      expect(assign).toEqual(jasmine.any(Function));
+    });
+  });
 });
 
 // Data
