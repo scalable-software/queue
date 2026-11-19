@@ -155,6 +155,13 @@ export class Queue<T extends object = Record<string, unknown>>
   private _onready: EventListener | null = null;
 
   /**
+   * The handler of `onunavailable`
+   * @category Events
+   * @hidden
+   */
+  private _onunavailable: EventListener | null = null;
+
+  /**
    * Create a queue; `options.order` chooses the order in which it hands out its items
    * @category Lifecycle
    */
@@ -344,6 +351,15 @@ export class Queue<T extends object = Record<string, unknown>>
    */
   public set onready(handler: EventListener | null) {
     this._onready = this._subscribe(Event.ON_READY, this._onready, handler);
+  }
+
+  /**
+   * Dispatched once, when the browser refuses to open or to write the database named by `storage`, with `detail.persisted` `false`: the items will not survive a reload
+   * @event
+   * @category Events
+   */
+  public set onunavailable(handler: EventListener | null) {
+    this._onunavailable = this._subscribe(Event.ON_UNAVAILABLE, this._onunavailable, handler);
   }
 
   /**

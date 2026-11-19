@@ -159,7 +159,8 @@ export const Event = {
   ON_WAITING: "onwaiting",
   ON_BUSY: "onbusy",
   ON_EMPTY: "onempty",
-  ON_READY: "onready"
+  ON_READY: "onready",
+  ON_UNAVAILABLE: "onunavailable"
 } as const;
 
 /**
