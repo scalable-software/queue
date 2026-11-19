@@ -9,7 +9,8 @@
  */
 export const State = {
   ORDER: "order",
-  CONDITION: "condition"
+  CONDITION: "condition",
+  READY: "ready"
 } as const;
 
 /**
@@ -101,6 +102,12 @@ export type Entry<T extends object = Record<string, unknown>> = T & {
  * @category Metadata: Data
  */
 export type Items<T extends object = Record<string, unknown>> = readonly Item<T>[];
+
+/**
+ * Value domain of the `ready` state: whether the queue has its stored items back
+ * @category Metadata: State
+ */
+export type Ready = boolean;
 
 /**
  * The options a host component gives the queue when it creates it; read once, not kept

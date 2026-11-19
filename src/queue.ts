@@ -4,7 +4,7 @@
 
 // Metadata
 import { Order, Condition, Priority, Event } from "./queue.meta.js";
-import type { Entry, Item, Items, Meta, Options } from "./queue.meta.js";
+import type { Entry, Item, Items, Meta, Options, Ready } from "./queue.meta.js";
 
 // Validation
 import { Validate } from "./queue.validation.js";
@@ -31,6 +31,13 @@ export class Queue<T extends object = Record<string, unknown>>
    * @hidden
    */
   private _condition: Condition = Condition.EMPTY;
+
+  /**
+   * Whether the queue has its stored items back
+   * @category State
+   * @hidden
+   */
+  private _ready: Ready = false;
 
   /**
    * The items that wait to be handed out, in the order they are handed out
@@ -163,6 +170,14 @@ export class Queue<T extends object = Record<string, unknown>>
     condition === Condition.WAITING && this._dispatch(Event.ON_WAITING, detail);
     condition === Condition.BUSY && this._dispatch(Event.ON_BUSY, detail);
     condition === Condition.EMPTY && this._dispatch(Event.ON_EMPTY, detail);
+  }
+
+  /**
+   * Whether the queue has its stored items back: `true` once they are restored
+   * @category State
+   */
+  public get ready(): Ready {
+    return this._ready;
   }
 
   /**
