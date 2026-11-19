@@ -169,7 +169,12 @@ export class Queue<T extends object = Record<string, unknown>>
    * Change the item with the given `id`: the given fields replace the item\x27s own, and it keeps its place
    * @category Operations
    */
-  public update = (item: Entry<T>) => {};
+  public update = (item: Entry<T>) => {
+    const change = (stored: Item<T>) =>
+      stored.id === item.id ? ({ ...stored, ...item } as Item<T>) : stored;
+
+    this.waiting = this.waiting.map(change);
+  };
 
   /**
    * Compare two waiting items: in a priority queue the higher priority comes first,
