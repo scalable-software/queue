@@ -997,4 +997,28 @@ events(Event.ON_ADD, () => {
       expect(hasSetter(queue, Event.ON_ADD)).toBe(true);
     });
   });
+
+  and("a queue is created, and `queue.onadd` is assigned a listener", () => {
+    let queue: Queue;
+    let onadd: jasmine.Spy;
+    beforeEach(() => {
+      queue = new Queue();
+      onadd = jasmine.createSpy("onadd");
+      queue.onadd = onadd;
+    });
+
+    when("`queue.add({ id: \"a\" })` is invoked", () => {
+      beforeEach(() => {
+        queue.add({ id: "a" });
+      });
+
+      then("the listener is called once", () => {
+        expect(onadd).toHaveBeenCalledTimes(1);
+      });
+
+      then("`detail.item` is the item as the queue holds it", () => {
+        expect(onadd.calls.mostRecent().args[0].detail.item).toBe(queue.waiting[0]);
+      });
+    });
+  });
 });
