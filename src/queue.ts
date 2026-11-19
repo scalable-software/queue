@@ -184,6 +184,8 @@ export class Queue<T extends object = Record<string, unknown>>
    * @category Operations
    */
   public remove = (id: string) => {
+    id = Validate.id(id);
+
     const kept = (item: Item<T>) => item.id !== id;
 
     this.waiting = this.waiting.filter(kept);
