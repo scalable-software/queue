@@ -187,6 +187,7 @@ export class Queue<T extends object = Record<string, unknown>>
     const kept = (item: Item<T>) => item.id !== id;
 
     this.waiting = this.waiting.filter(kept);
+    this.working = this.working.filter(kept);
     this._added.delete(id);
   };
 
