@@ -1442,6 +1442,25 @@ operation(Operation.CLEAR, () => {
       });
     });
   });
+
+  and("a queue with `storage` holds `a`, and `queue.onunavailable` is assigned a listener", () => {
+    let storage: string;
+    let onunavailable: jasmine.Spy;
+    beforeEach(async () => {
+      storage = unique();
+      const queue = await reopen(storage);
+      queue.add({ id: "a" });
+      onunavailable = jasmine.createSpy("onunavailable");
+      queue.onunavailable = onunavailable;
+      await queue.clear();
+      await settle();
+    });
+    afterEach(() => drop(storage));
+
+    then("`queue.clear()` does not call the listener", () => {
+      expect(onunavailable).not.toHaveBeenCalled();
+    });
+  });
 });
 
 // Event
