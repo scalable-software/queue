@@ -1586,4 +1586,21 @@ events(Event.ON_READY, () => {
       expect(hasSetter(queue, Event.ON_READY)).toBe(true);
     });
   });
+
+  and("a queue is created, and `queue.onready` is assigned a listener", () => {
+    let queue: Queue;
+    let onready: jasmine.Spy;
+    beforeEach(async () => {
+      queue = new Queue();
+      onready = jasmine.createSpy("onready");
+      queue.onready = onready;
+      await settle();
+    });
+
+    then("the listener is called once, with `detail.ready` `true`", () => {
+      expect(onready).toHaveBeenCalledOnceWith(
+        jasmine.objectContaining({ detail: { ready: true } })
+      );
+    });
+  });
 });
