@@ -1341,4 +1341,36 @@ events(Event.ON_WAITING, () => {
       expect(hasSetter(queue, Event.ON_WAITING)).toBe(true);
     });
   });
+
+  and("a queue is created, and `queue.onwaiting` is assigned a listener", () => {
+    let queue: Queue;
+    let onwaiting: jasmine.Spy;
+    beforeEach(() => {
+      queue = new Queue();
+      onwaiting = jasmine.createSpy("onwaiting");
+      queue.onwaiting = onwaiting;
+    });
+
+    when("`a` is added", () => {
+      beforeEach(() => {
+        queue.add({ id: "a" });
+      });
+
+      then("the listener is called with `detail.condition` `Condition.WAITING`", () => {
+        expect(onwaiting).toHaveBeenCalledOnceWith(
+          jasmine.objectContaining({ detail: { condition: Condition.WAITING } })
+        );
+      });
+
+      when("`b` is added", () => {
+        beforeEach(() => {
+          queue.add({ id: "b" });
+        });
+
+        then("the listener is not called again", () => {
+          expect(onwaiting).toHaveBeenCalledTimes(1);
+        });
+      });
+    });
+  });
 });
