@@ -33,6 +33,10 @@ export class Validate {
    * @category Validation
    */
   public static item = (value: unknown) => {
+    // Structure
+    if (typeof value !== "object" || value === null || Array.isArray(value))
+      throw new Error(`Invalid item value: ${value}`);
+
     return value as Entry;
   };
 }
