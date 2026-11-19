@@ -116,7 +116,8 @@ export type Options = {
  * @enum
  */
 export const Operation = {
-  ADD: "add"
+  ADD: "add",
+  TAKE: "take"
 } as const;
 
 /**

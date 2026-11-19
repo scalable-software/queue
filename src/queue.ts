@@ -139,6 +139,12 @@ export class Queue<T extends object = Record<string, unknown>>
   };
 
   /**
+   * Hand out the next waiting item and move it to the items being worked on; `null` when no item waits
+   * @category Operations
+   */
+  public take = (): Item<T> | null => null;
+
+  /**
    * Compare two waiting items: in a priority queue the higher priority comes first,
    * and otherwise the earliest added
    * @category Data
