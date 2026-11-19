@@ -47,6 +47,13 @@ export class Queue<T extends object = Record<string, unknown>>
   private _working: Items<T> = Object.freeze([]);
 
   /**
+   * The items the queue holds as its own: frozen copies, which are kept as they are
+   * @category Data
+   * @hidden
+   */
+  private _stored = new WeakSet<Item<T>>();
+
+  /**
    * Create a queue; `options.order` chooses the order in which it hands out its items
    * @category Lifecycle
    */
@@ -83,8 +90,11 @@ export class Queue<T extends object = Record<string, unknown>>
     return this._waiting;
   }
   private set waiting(items: Items<T>) {
+    // Clone
+    items = items.map(this._own);
+
     // Mutate
-    this._waiting = items;
+    this._waiting = Object.freeze(items);
   }
 
   /**
@@ -103,5 +113,32 @@ export class Queue<T extends object = Record<string, unknown>>
     const added = { ...item, priority: item.priority ?? Priority.LOWEST } as Item<T>;
 
     this.waiting = [...this.waiting, added];
+  };
+
+  /**
+   * The queue's own copy of an item: the item itself when the queue already holds it,
+   * otherwise a deep-frozen clone
+   * @category Data
+   * @hidden
+   */
+  private _own = (item: Item<T>): Item<T> => {
+    if (this._stored.has(item)) return item;
+
+    const own = this._freeze(structuredClone(item));
+    this._stored.add(own);
+    return own;
+  };
+
+  /**
+   * Freeze a value and everything it holds
+   * @category Utility
+   * @hidden
+   */
+  private _freeze = <V>(value: V): V => {
+    if (typeof value !== "object" || value === null || Object.isFrozen(value))
+      return value;
+
+    Object.values(value).forEach(this._freeze);
+    return Object.freeze(value);
   };
 }
