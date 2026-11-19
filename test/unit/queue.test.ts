@@ -361,6 +361,20 @@ state(State.PERSISTED, () => {
       expect(queue.persisted).toBe(false);
     });
   });
+
+  given("a queue with `storage` is ready", () => {
+    let storage: string;
+    let queue: Queue;
+    beforeEach(async () => {
+      storage = unique();
+      queue = await reopen(storage);
+    });
+    afterEach(() => drop(storage));
+
+    then("`queue.persisted` is `true`", () => {
+      expect(queue.persisted).toBe(true);
+    });
+  });
 });
 
 // Data
