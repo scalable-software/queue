@@ -198,6 +198,8 @@ export class Queue<T extends object = Record<string, unknown>>
    * @category Operations
    */
   public putBack = (id: string) => {
+    id = Validate.id(id);
+
     const item = this.working.find((item) => item.id === id);
     if (!item) return;
 
