@@ -3,6 +3,7 @@ export { State, Order, Condition, Datum, Operation, Event } from "./queue.meta.j
 export type {
   Item,
   Items,
+  Entry,
   Options,
   States,
   Data,

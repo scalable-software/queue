@@ -78,6 +78,15 @@ export type Item<T extends object = Record<string, unknown>> = T & {
 };
 
 /**
+ * An item as the host component gives it: the `priority` may be left out, and is then 1
+ * @category Metadata: Data
+ */
+export type Entry<T extends object = Record<string, unknown>> = T & {
+  id: string;
+  priority?: number;
+};
+
+/**
  * A list of items, as the queue holds it
  * @category Metadata: Data
  */

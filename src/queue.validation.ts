@@ -3,7 +3,7 @@
  */
 
 import { Order } from "./queue.meta.js";
-import type { Options } from "./queue.meta.js";
+import type { Entry, Options } from "./queue.meta.js";
 
 /**
  * Validators for every value that enters the queue from outside
@@ -26,5 +26,13 @@ export class Validate {
       throw new Error("Invalid options value: order is invalid");
 
     return value as Options;
+  };
+
+  /**
+   * Validate an item given to the queue
+   * @category Validation
+   */
+  public static item = (value: unknown) => {
+    return value as Entry;
   };
 }
