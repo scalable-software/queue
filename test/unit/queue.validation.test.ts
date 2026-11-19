@@ -269,3 +269,14 @@ validation("id", () => {
     });
   });
 });
+
+validation("id", () => {
+  given("Validate is imported", () => {
+    rejects("id", (value) => Validate.id(value), [
+      ["", "Invalid id value: "],
+      [1, "Invalid id value: 1"],
+      [null, "Invalid id value: null"],
+      [undefined, "Invalid id value: undefined"]
+    ]);
+  });
+});
