@@ -26,6 +26,17 @@
       ],
       "default": "fifo",
       "readonly": true
+    },
+    "condition": {
+      "type": "Condition",
+      "description": "The condition of the queue as a whole, computed from its items: `empty` when it holds none, `waiting` while any item waits, and `busy` while items are being worked on and none waits.",
+      "values": [
+        "empty",
+        "waiting",
+        "busy"
+      ],
+      "default": "empty",
+      "readonly": true
     }
   },
   "Operations": {
@@ -155,6 +166,60 @@
           "properties": {
             "item": {
               "type": "Item"
+            }
+          }
+        }
+      ]
+    },
+    "onempty": {
+      "description": "Dispatched when `condition` changes to `empty`, after the event for the item that emptied the queue.",
+      "parameters": [
+        {
+          "name": "detail",
+          "type": "object",
+          "description": "Contains the new condition of the queue.",
+          "properties": {
+            "condition": {
+              "type": "Condition",
+              "values": [
+                "empty"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    "onwaiting": {
+      "description": "Dispatched when `condition` changes to `waiting`, after the event for the item that made an item wait.",
+      "parameters": [
+        {
+          "name": "detail",
+          "type": "object",
+          "description": "Contains the new condition of the queue.",
+          "properties": {
+            "condition": {
+              "type": "Condition",
+              "values": [
+                "waiting"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    "onbusy": {
+      "description": "Dispatched when `condition` changes to `busy`, after the event for the item that left only items being worked on.",
+      "parameters": [
+        {
+          "name": "detail",
+          "type": "object",
+          "description": "Contains the new condition of the queue.",
+          "properties": {
+            "condition": {
+              "type": "Condition",
+              "values": [
+                "busy"
+              ]
             }
           }
         }
