@@ -278,6 +278,29 @@ operation(Operation.ADD, () => {
         expect(queue.waiting.map(({ id }) => id)).toEqual(["a", "b", "c"]);
       });
     });
+
+    when("`queue.add({ id: \"a\", priority: 11 })` is invoked", () => {
+      let error: Error;
+      beforeEach(() => {
+        try {
+          queue.add({ id: "a", priority: 11 });
+        } catch (err) {
+          error = err as Error;
+        }
+      });
+
+      then("an error is thrown", () => {
+        expect(error).toBeDefined();
+      });
+
+      then("error message is 'Invalid item value: priority is invalid'", () => {
+        expect(error?.message).toBe("Invalid item value: priority is invalid");
+      });
+
+      then("`queue.waiting` is empty", () => {
+        expect(queue.waiting).toEqual([]);
+      });
+    });
   });
 });
 
