@@ -899,6 +899,27 @@ operation(Operation.PUT_BACK, () => {
       });
     });
   });
+
+  and("a queue is created with `{ order: Order.PRIORITY }`, `a` (1), `b` (10) and `c` (5) are added, and `b` is taken", () => {
+    let queue: Queue;
+    beforeEach(() => {
+      queue = new Queue({ order: Order.PRIORITY });
+      queue.add({ id: "a", priority: 1 });
+      queue.add({ id: "b", priority: 10 });
+      queue.add({ id: "c", priority: 5 });
+      queue.take();
+    });
+
+    when("`queue.putBack(\"b\")` is invoked", () => {
+      beforeEach(() => {
+        queue.putBack("b");
+      });
+
+      then("`queue.waiting` holds `b`, `c`, then `a`", () => {
+        expect(queue.waiting.map(({ id }) => id)).toEqual(["b", "c", "a"]);
+      });
+    });
+  });
 });
 
 // Event
