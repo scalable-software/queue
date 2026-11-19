@@ -170,6 +170,8 @@ export class Queue<T extends object = Record<string, unknown>>
    * @category Operations
    */
   public update = (item: Entry<T>) => {
+    item = Validate.item(item) as Entry<T>;
+
     const change = (stored: Item<T>) =>
       stored.id === item.id ? ({ ...stored, ...item } as Item<T>) : stored;
 
