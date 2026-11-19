@@ -1021,4 +1021,47 @@ events(Event.ON_ADD, () => {
       });
     });
   });
+
+  and("a queue is created, and `queue.onadd` is assigned `first`, then `second`", () => {
+    let queue: Queue;
+    let first: jasmine.Spy;
+    let second: jasmine.Spy;
+    beforeEach(() => {
+      queue = new Queue();
+      first = jasmine.createSpy("first");
+      second = jasmine.createSpy("second");
+      queue.onadd = first;
+      queue.onadd = second;
+    });
+
+    when("an item is added", () => {
+      beforeEach(() => {
+        queue.add({ id: "a" });
+      });
+
+      then("`first` is not called", () => {
+        expect(first).not.toHaveBeenCalled();
+      });
+
+      then("`second` is called", () => {
+        expect(second).toHaveBeenCalled();
+      });
+    });
+
+    and("`queue.onadd` is assigned `null`", () => {
+      beforeEach(() => {
+        queue.onadd = null;
+      });
+
+      when("an item is added", () => {
+        beforeEach(() => {
+          queue.add({ id: "a" });
+        });
+
+        then("`second` is not called", () => {
+          expect(second).not.toHaveBeenCalled();
+        });
+      });
+    });
+  });
 });
