@@ -41,6 +41,8 @@ export class Validate {
     const { id } = value as Record<string, unknown>;
 
     if (id === undefined) throw new Error("Invalid item value: id is required");
+    if (typeof id !== "string" || id === "")
+      throw new Error("Invalid item value: id is invalid");
 
     return value as Entry;
   };
