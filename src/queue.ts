@@ -370,6 +370,7 @@ export class Queue<T extends object = Record<string, unknown>>
 
     this.waiting = rest;
     this.working = [...this.working, item];
+    this._save(item.id);
 
     this._dispatch(Event.ON_TAKE, { item: this._find(item.id) });
 
@@ -486,7 +487,10 @@ export class Queue<T extends object = Record<string, unknown>>
 
     const restored = stored.sort((a, b) => a.added - b.added);
     restored.forEach(({ id }) => this._added.set(id, this._count++));
-    this.waiting = [...this.waiting, ...restored.map(({ item }) => item)];
+    const items = (working: boolean) =>
+      restored.filter((record) => record.working === working).map(({ item }) => item);
+    this.waiting = [...this.waiting, ...items(false)];
+    this.working = [...this.working, ...items(true)];
 
     this.ready = true;
 
