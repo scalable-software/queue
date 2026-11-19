@@ -131,3 +131,8 @@ start with the items it held before, so that unfinished work is not lost.
 
 As a **host component**, when my queue starts, I want to be told once its stored items are
 back, so that I take work only from a complete queue.
+
+### STORY: Separate Queues
+
+As a **host component**, when other components on the same site also keep queues, I want my
+queue stored under its own name, so that queues never mix.
