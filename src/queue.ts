@@ -197,7 +197,12 @@ export class Queue<T extends object = Record<string, unknown>>
    * Put an item that is being worked on back among the waiting items, at the place it would have had had it never been taken
    * @category Operations
    */
-  public putBack = (id: string) => {};
+  public putBack = (id: string) => {
+    const item = this.working.find((item) => item.id === id) as Item<T>;
+
+    this.working = this.working.filter((item) => item.id !== id);
+    this.waiting = [...this.waiting, item];
+  };
 
   /**
    * Compare two waiting items: in a priority queue the higher priority comes first,
