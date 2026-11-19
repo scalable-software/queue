@@ -333,6 +333,26 @@ operation(Operation.ADD, () => {
       });
     });
   });
+
+  and("a queue is created with `{ order: Order.PRIORITY }`", () => {
+    let queue: Queue;
+    beforeEach(() => {
+      queue = new Queue({ order: Order.PRIORITY });
+    });
+
+    when("`a` (1), `b` (5), `c` (5) and `d` (10) are added", () => {
+      beforeEach(() => {
+        queue.add({ id: "a", priority: 1 });
+        queue.add({ id: "b", priority: 5 });
+        queue.add({ id: "c", priority: 5 });
+        queue.add({ id: "d", priority: 10 });
+      });
+
+      then("`queue.waiting` holds `d`, `b`, `c`, then `a`", () => {
+        expect(queue.waiting.map(({ id }) => id)).toEqual(["d", "b", "c", "a"]);
+      });
+    });
+  });
 });
 
 // Event
