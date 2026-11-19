@@ -155,6 +155,59 @@ data(Datum.WAITING, () => {
     then("`queue.waiting` is empty", () => {
       expect(queue.waiting).toEqual([]);
     });
+
+    when("`item` is added", () => {
+      let item: { id: string; file: string; meta: { name: string } };
+      beforeEach(() => {
+        item = { id: "a", file: "report.pdf", meta: { name: "Report" } };
+        queue.add(item);
+      });
+
+      then("`queue.waiting[0]` is a copy, not `item` itself", () => {
+        expect(queue.waiting[0] as unknown).not.toBe(item);
+      });
+
+      then("`queue.waiting` is frozen", () => {
+        expect(Object.isFrozen(queue.waiting)).toBeTrue();
+      });
+
+      then("`queue.waiting[0]` is frozen", () => {
+        expect(Object.isFrozen(queue.waiting[0])).toBeTrue();
+      });
+
+      then("`queue.waiting[0].meta` is frozen", () => {
+        expect(Object.isFrozen(queue.waiting[0].meta)).toBeTrue();
+      });
+
+      when("`item.meta.name` is changed afterwards", () => {
+        beforeEach(() => {
+          item.meta.name = "Changed";
+        });
+
+        then("`queue.waiting[0].meta.name` is still `Report`", () => {
+          expect((queue.waiting[0].meta as { name: string }).name).toBe("Report");
+        });
+      });
+
+      when("`queue.waiting[0].file` is assigned", () => {
+        let error: unknown;
+        beforeEach(() => {
+          try {
+            (queue.waiting[0] as unknown as { file: string }).file = "changed.pdf";
+          } catch (err) {
+            error = err;
+          }
+        });
+
+        then("a `TypeError` is thrown", () => {
+          expect(error).toEqual(jasmine.any(TypeError));
+        });
+
+        then("`queue.waiting[0].file` is still `report.pdf`", () => {
+          expect(queue.waiting[0].file).toBe("report.pdf");
+        });
+      });
+    });
   });
 });
 
