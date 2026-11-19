@@ -140,7 +140,8 @@ export const Event = {
   ON_TAKE: "ontake",
   ON_UPDATE: "onupdate",
   ON_REMOVE: "onremove",
-  ON_PUT_BACK: "onputback"
+  ON_PUT_BACK: "onputback",
+  ON_WAITING: "onwaiting"
 } as const;
 
 /**

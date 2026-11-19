@@ -103,6 +103,13 @@ export class Queue<T extends object = Record<string, unknown>>
   private _onputback: EventListener | null = null;
 
   /**
+   * The handler of `onwaiting`
+   * @category Events
+   * @hidden
+   */
+  private _onwaiting: EventListener | null = null;
+
+  /**
    * Create a queue; `options.order` chooses the order in which it hands out its items
    * @category Lifecycle
    */
@@ -214,6 +221,15 @@ export class Queue<T extends object = Record<string, unknown>>
    */
   public set onputback(handler: EventListener | null) {
     this._onputback = this._subscribe(Event.ON_PUT_BACK, this._onputback, handler);
+  }
+
+  /**
+   * Dispatched when `condition` changes to `waiting`, with `detail.condition`, after the event for the item
+   * @event
+   * @category Events
+   */
+  public set onwaiting(handler: EventListener | null) {
+    this._onwaiting = this._subscribe(Event.ON_WAITING, this._onwaiting, handler);
   }
 
   /**
