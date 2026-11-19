@@ -59,6 +59,9 @@ export class Validate {
    * @category Validation
    */
   public static id = (value: unknown) => {
-    return value as string;
+    if (typeof value !== "string" || value === "")
+      throw new Error(`Invalid id value: ${value}`);
+
+    return value;
   };
 }
