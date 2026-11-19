@@ -1,17 +1,17 @@
 {
   "Component": "Queue",
   "Package": "queue",
-  "Description": "The Queue is a reactive queue that a host component creates for itself and keeps in a private field. It holds items with an id and a priority, hands them out in order, keeps them in IndexedDB so they survive a reload, and dispatches an event for every change. It is an EventTarget-based add-on rather than a custom element: it declares no Tag, Composition or Gestures. An item is the host's own object, `{ id, priority } & T`: the queue owns `id` and `priority`, and keeps every other field as the host gave it.",
+  "Description": "The Queue is a reactive queue that a host component creates for itself and keeps in a private field. It holds items with an id and a priority, hands them out in order, keeps them in IndexedDB so they survive a reload, and dispatches an event for every change. The `storage` option names the IndexedDB database that keeps the queue: `new Queue({ order, storage })` restores the items it held before, and keeps the database in step behind every change, while every operation acts in memory at once. Without `storage`, the queue lives in memory only. It is an EventTarget-based add-on rather than a custom element: it declares no Tag, Composition or Gestures. An item is the host's own object, `{ id, priority } & T`: the queue owns `id` and `priority`, and keeps every other field as the host gave it.",
   "Data": {
     "waiting": {
       "type": "Items",
-      "description": "The items that wait to be handed out, as a list of `Item`, in the order `take()` hands them out: the order they were added, or, in a priority queue, the highest `priority` first and the earliest added first among equals. An item that is put back or changed keeps the place its first addition gave it. Each item is the stored, frozen copy.",
+      "description": "The items that wait to be handed out, as a list of `Item`, in the order `take()` hands them out: the order they were added, or, in a priority queue, the highest `priority` first and the earliest added first among equals. An item that is put back or changed keeps the place its first addition gave it. Each item is the stored, frozen copy. Restored items keep the place they had, and come before the items added since the queue was created.",
       "default": [],
       "readonly": true
     },
     "working": {
       "type": "Items",
-      "description": "The items that have been taken and are being worked on, as a list of `Item`, in the order they were taken. An item stays here until it is removed or put back. Each item is the stored, frozen copy.",
+      "description": "The items that have been taken and are being worked on, as a list of `Item`, in the order they were taken. An item stays here until it is removed or put back. Each item is the stored, frozen copy. Restored items that were being worked on come back here, as they were: the host decides whether to put them back.",
       "default": [],
       "readonly": true
     }
