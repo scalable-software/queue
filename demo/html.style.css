@@ -3,6 +3,7 @@ html {
   height: 100%;
   background-color: var(--background-color);
   color: var(--text-color);
+  font-family: system-ui, sans-serif;
 }
 
 body {
@@ -17,6 +18,10 @@ body {
 :root {
   --background-color: #ffffff;
   --text-color: #000000;
+  --panel-color: #f3f4f6;
+  --border-color: #d1d5db;
+  --muted-color: #6b7280;
+  --error-color: #b91c1c;
 }
 
 /* Dark Mode Styles */
@@ -24,11 +29,99 @@ body {
   :root {
     --background-color: #1e1e1e;
     --text-color: #f0f0f0;
+    --panel-color: #2a2a2a;
+    --border-color: #444444;
+    --muted-color: #a3a3a3;
+    --error-color: #f87171;
   }
 }
 
-pin-component {
-  position: absolute;
-  left: 48px;
-  top: 48px;
+/* The stage: the queue has no appearance, so it holds its name and purpose */
+.stage {
+  padding: 16px 24px;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.stage h1 {
+  margin: 0 0 4px;
+  font-size: 1.5rem;
+}
+
+.stage p {
+  margin: 0;
+  color: var(--muted-color);
+}
+
+/* The controls: columns that stack on a narrow window, sharing one bottom edge */
+.controls {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  align-items: stretch;
+  gap: 16px;
+  padding: 16px 24px;
+}
+
+.group {
+  min-width: 0;
+  padding: 12px 16px;
+  background-color: var(--panel-color);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+}
+
+.group h2 {
+  margin: 0 0 12px;
+  font-size: 1.1rem;
+}
+
+.group h3 {
+  margin: 12px 0 4px;
+  font-size: 0.95rem;
+}
+
+.fields {
+  display: grid;
+  gap: 8px;
+}
+
+label {
+  display: grid;
+  gap: 2px;
+}
+
+input,
+select,
+button {
+  font: inherit;
+}
+
+.buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+pre {
+  margin: 0;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  font-size: 0.85rem;
+}
+
+.hint,
+.readonly {
+  color: var(--muted-color);
+  font-size: 0.85rem;
+}
+
+.error {
+  color: var(--error-color);
+  overflow-wrap: anywhere;
+}
+
+.log {
+  padding-left: 20px;
+  font-family: ui-monospace, monospace;
+  font-size: 0.8rem;
+  overflow-wrap: anywhere;
 }
