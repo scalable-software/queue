@@ -25,6 +25,13 @@ const ready = (queue: Queue) =>
         queue.addEventListener(Event.ON_READY, () => resolve(), { once: true })
       );
 
+// A new queue with `storage`, once it has its stored items back
+const reopen = async (storage: string) => {
+  const queue = new Queue({ storage });
+  await ready(queue);
+  return queue;
+};
+
 // Deletes the database named `name`
 const drop = (name: string) =>
   new Promise<void>((resolve) => {
@@ -389,6 +396,24 @@ data(Datum.WAITING, () => {
           { id: "b", priority: Priority.LOWEST }
         ]);
       });
+    });
+  });
+
+  given("a queue with `storage` is ready, and `a` is added, taken and put back", () => {
+    let storage: string;
+    let second: Queue;
+    beforeEach(async () => {
+      storage = unique();
+      const first = await reopen(storage);
+      first.add({ id: "a" });
+      first.take();
+      first.putBack("a");
+      second = await reopen(storage);
+    });
+    afterEach(() => drop(storage));
+
+    then("a second queue with the same `storage` has `a` in `waiting`", () => {
+      expect(second.waiting.map(({ id }) => id)).toEqual(["a"]);
     });
   });
 });
