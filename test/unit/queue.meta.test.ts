@@ -214,6 +214,14 @@ metadata(Metadata.OPERATION, () => {
         then("`Operation.PEEK` is `peek`", () => {
           expect(Operation.PEEK).toBe("peek");
         });
+
+        then("`Operation.UPDATE` exists", () => {
+          expect(Operation.UPDATE).toBeDefined();
+        });
+
+        then("`Operation.UPDATE` is `update`", () => {
+          expect(Operation.UPDATE).toBe("update");
+        });
       });
     });
   });

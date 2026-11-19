@@ -551,4 +551,17 @@ operation(Operation.PEEK, () => {
   });
 });
 
+operation(Operation.UPDATE, () => {
+  and("a queue is created", () => {
+    let queue: Queue;
+    beforeEach(() => {
+      queue = new Queue();
+    });
+
+    then("`queue.update` exists", () => {
+      expect(queue.update).toBeDefined();
+    });
+  });
+});
+
 // Event
