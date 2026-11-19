@@ -1993,4 +1993,49 @@ events(Event.ON_UNAVAILABLE, () => {
       });
     });
   });
+
+  and("the browser opens a database but refuses to read it", () => {
+    let storage: string;
+    beforeEach(() => {
+      storage = unique();
+      spyOn(IDBDatabase.prototype, "transaction").and.throwError(
+        new DOMException("refused", "InvalidStateError")
+      );
+    });
+    afterEach(() => drop(storage));
+
+    when("a queue with `storage` is created, and `queue.onunavailable` is assigned a listener", () => {
+      let queue: Queue;
+      let onunavailable: jasmine.Spy;
+      beforeEach(async () => {
+        queue = new Queue({ storage });
+        onunavailable = jasmine.createSpy("onunavailable");
+        queue.onunavailable = onunavailable;
+        await Promise.race([ready(queue), new Promise((r) => setTimeout(r, 500))]);
+      });
+
+      then("the listener is called once", () => {
+        expect(onunavailable).toHaveBeenCalledTimes(1);
+      });
+
+      then("`queue.ready` is `true`", () => {
+        expect(queue.ready).toBe(true);
+      });
+    });
+  });
+
+  and("a queue without `storage` is created, and `queue.onunavailable` is assigned a listener", () => {
+    let onunavailable: jasmine.Spy;
+    beforeEach(async () => {
+      const queue = new Queue();
+      onunavailable = jasmine.createSpy("onunavailable");
+      queue.onunavailable = onunavailable;
+      await ready(queue);
+      queue.add({ id: "a" });
+    });
+
+    then("the listener is not called", () => {
+      expect(onunavailable).not.toHaveBeenCalled();
+    });
+  });
 });
