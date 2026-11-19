@@ -47,6 +47,12 @@ export class Storage<T extends object = Record<string, unknown>> {
   private _onfail: () => void;
 
   /**
+   * Whether the browser has refused the database
+   * @hidden
+   */
+  private _failed = false;
+
+  /**
    * Open the database named `name`, creating it the first time
    * @param onfail - Told once when the browser refuses to open or to write the database
    */
@@ -69,23 +75,30 @@ export class Storage<T extends object = Record<string, unknown>> {
   /**
    * Store items, replacing the records with the same ids
    */
-  public put = (...records: Stored<T>[]) => {
-    this._database = this._database.then((database) => {
-      if (!database) return null;
-      const store = database.transaction(ITEMS, "readwrite").objectStore(ITEMS);
-      records.forEach((record) => store.put(record));
-      return database;
-    });
-  };
+  public put = (...records: Stored<T>[]) =>
+    this._write((store) => records.forEach((record) => store.put(record)));
 
   /**
    * Remove the stored item with the given id
    */
-  public delete = (id: string) => {
+  public delete = (id: string) => this._write((store) => store.delete(id));
+
+  /**
+   * Write to the items, after every earlier read and write; a write the browser refuses,
+   * at once or when its transaction ends, fails the database
+   * @hidden
+   */
+  private _write = (change: (store: IDBObjectStore) => void) => {
     this._database = this._database.then((database) => {
       if (!database) return null;
-      database.transaction(ITEMS, "readwrite").objectStore(ITEMS).delete(id);
-      return database;
+      try {
+        const transaction = database.transaction(ITEMS, "readwrite");
+        transaction.onabort = this._fail;
+        change(transaction.objectStore(ITEMS));
+        return database;
+      } catch {
+        return this._fail();
+      }
     });
   };
 
@@ -109,7 +122,8 @@ export class Storage<T extends object = Record<string, unknown>> {
    * @hidden
    */
   private _fail = (): null => {
-    this._onfail();
+    this._failed || this._onfail();
+    this._failed = true;
     return null;
   };
 
