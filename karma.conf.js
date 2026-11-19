@@ -11,8 +11,6 @@ module.exports = function (config) {
     },
     files: [
       { pattern: "./test/helper/helper.js" },
-      { pattern: "./src/*.css" },
-      { pattern: "./src/*.html" },
       { pattern: "./importmap/inject.js" },
       { pattern: "./importmap/importmap.test.js" },
       {

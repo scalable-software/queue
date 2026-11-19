@@ -1,11 +1,3 @@
-export {
-  Tag,
-  CSS,
-  Attributes,
-  State,
-  Operation,
-  Event,
-  Gesture
-} from "./component.meta.js";
+export { State, Operation, Event } from "./queue.meta.js";
 
-export { component } from "./component.js";
+export { Queue } from "./queue.js";

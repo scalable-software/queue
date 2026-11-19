@@ -1,35 +1,4 @@
-import {
-  Tag,
-  Attributes,
-  State,
-  Operation,
-  Event,
-  Gesture
-} from "@scalable.software/queue";
-
-// Tag
-metadata(Metadata.TAG, () => {
-  when("Tag imported", () => {
-    then("Tag is defined", () => {
-      expect(Tag).toBeDefined();
-    });
-  });
-});
-
-// Attributes
-metadata(Metadata.ATTRIBUTES, () => {
-  and("Attribute imported", () => {
-    then("Attributes is defined", () => {
-      expect(Attributes).toBeDefined();
-    });
-
-    when("Attributes is defined", () => {
-      then("Attributes is an object", () => {
-        expect(typeof Attributes).toBe("object");
-      });
-    });
-  });
-});
+import { State, Operation, Event } from "@scalable.software/queue";
 
 // State
 metadata(Metadata.STATE, () => {
@@ -71,21 +40,6 @@ metadata(Metadata.EVENT, () => {
     when("Event is defined", () => {
       then("Event is an object", () => {
         expect(typeof Event).toBe("object");
-      });
-    });
-  });
-});
-
-// Gesture
-metadata(Metadata.GESTURE, () => {
-  and("Gesture imported", () => {
-    then("Gesture is defined", () => {
-      expect(Gesture).toBeDefined();
-    });
-
-    when("Gesture is defined", () => {
-      then("Gesture is an object", () => {
-        expect(typeof Gesture).toBe("object");
       });
     });
   });
