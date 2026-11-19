@@ -117,7 +117,8 @@ export type Options = {
  */
 export const Operation = {
   ADD: "add",
-  TAKE: "take"
+  TAKE: "take",
+  PEEK: "peek"
 } as const;
 
 /**
