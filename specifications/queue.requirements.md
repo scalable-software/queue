@@ -142,3 +142,8 @@ queue stored under its own name, so that queues never mix.
 As a **host component**, when the browser refuses to store anything, for example in a private
 window, I want the queue to keep working for this page and to tell me its items will not
 survive a reload, so that the work goes on and I can warn the end user.
+
+### STORY: Clear Stored Queue
+
+As a **host component**, when a queue is no longer needed, I want to remove its stored items,
+so that nothing is left behind in the browser.
