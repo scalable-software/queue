@@ -1124,4 +1124,39 @@ events(Event.ON_TAKE, () => {
       expect(hasSetter(queue, Event.ON_TAKE)).toBe(true);
     });
   });
+
+  and("a queue is created, `a` is added, and `queue.ontake` is assigned a listener", () => {
+    let queue: Queue;
+    let ontake: jasmine.Spy;
+    beforeEach(() => {
+      queue = new Queue();
+      queue.add({ id: "a" });
+      ontake = jasmine.createSpy("ontake");
+      queue.ontake = ontake;
+    });
+
+    when("`queue.take()` is invoked", () => {
+      beforeEach(() => {
+        queue.take();
+      });
+
+      then("the listener is called once", () => {
+        expect(ontake).toHaveBeenCalledTimes(1);
+      });
+
+      then("`detail.item` is the item as the queue holds it", () => {
+        expect(ontake.calls.mostRecent().args[0].detail.item).toBe(queue.working[0]);
+      });
+
+      when("`queue.take()` is invoked again, with no item waiting", () => {
+        beforeEach(() => {
+          queue.take();
+        });
+
+        then("the listener is not called again", () => {
+          expect(ontake).toHaveBeenCalledTimes(1);
+        });
+      });
+    });
+  });
 });
