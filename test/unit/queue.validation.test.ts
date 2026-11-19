@@ -155,3 +155,50 @@ validation("item", () => {
     });
   });
 });
+
+/**
+ * For each `[value, message]`: calling `validator(value)` throws an error with `message`
+ */
+function rejects(
+  name: string,
+  validator: (value: unknown) => unknown,
+  cases: [unknown, string][]
+) {
+  cases.forEach(([invalid, message]) => {
+    and(`\`value\` is \`${JSON.stringify(invalid)}\``, () => {
+      let value: unknown;
+      beforeEach(() => {
+        value = invalid;
+      });
+
+      when(`\`Validate.${name}(value)\` is called`, () => {
+        let error: unknown | undefined;
+        beforeEach(() => {
+          try {
+            validator(value);
+          } catch (err) {
+            error = err;
+          }
+        });
+
+        then("an error is thrown", () => {
+          expect(error).not.toBeUndefined();
+        });
+
+        then(`error message is '${message}'`, () => {
+          expect((error as Error)?.message).toEqual(message);
+        });
+      });
+    });
+  });
+}
+
+validation("item", () => {
+  given("Validate is imported", () => {
+    rejects("item", (value) => Validate.item(value), [
+      ["a", "Invalid item value: a"],
+      [null, "Invalid item value: null"],
+      [1, "Invalid item value: 1"]
+    ]);
+  });
+});
