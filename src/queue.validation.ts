@@ -2,6 +2,7 @@
  * @module Queue
  */
 
+import { Order } from "./queue.meta.js";
 import type { Options } from "./queue.meta.js";
 
 /**
@@ -17,6 +18,12 @@ export class Validate {
     // Structure
     if (typeof value !== "object" || value === null || Array.isArray(value))
       throw new Error(`Invalid options value: ${value}`);
+
+    // Declared fields
+    const { order } = value as Record<string, unknown>;
+
+    if (order !== undefined && !Object.values(Order).includes(order as Order))
+      throw new Error("Invalid options value: order is invalid");
 
     return value as Options;
   };
