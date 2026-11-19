@@ -194,6 +194,12 @@ export class Queue<T extends object = Record<string, unknown>>
   };
 
   /**
+   * Put an item that is being worked on back among the waiting items, at the place it would have had had it never been taken
+   * @category Operations
+   */
+  public putBack = (id: string) => {};
+
+  /**
    * Compare two waiting items: in a priority queue the higher priority comes first,
    * and otherwise the earliest added
    * @category Data

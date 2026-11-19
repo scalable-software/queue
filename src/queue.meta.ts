@@ -120,7 +120,8 @@ export const Operation = {
   TAKE: "take",
   PEEK: "peek",
   UPDATE: "update",
-  REMOVE: "remove"
+  REMOVE: "remove",
+  PUT_BACK: "putBack"
 } as const;
 
 /**
