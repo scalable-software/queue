@@ -11,6 +11,9 @@ import {
 
 import type { Item } from "@scalable.software/queue";
 
+// Resolves once the tasks queued so far have run
+const settle = () => new Promise((resolve) => setTimeout(resolve));
+
 // Configuration
 given("Queue imported", () => {
   then("Queue is defined", () => {
@@ -232,6 +235,18 @@ state(State.READY, () => {
 
     then("`queue.ready` is `false`", () => {
       expect(queue.ready).toBe(false);
+    });
+  });
+
+  given("a queue is created, and the constructor has returned", () => {
+    let queue: Queue;
+    beforeEach(async () => {
+      queue = new Queue();
+      await settle();
+    });
+
+    then("`queue.ready` is `true`", () => {
+      expect(queue.ready).toBe(true);
     });
   });
 });
