@@ -95,6 +95,13 @@ export class Queue<T extends object = Record<string, unknown>>
   public get condition(): Condition {
     return this._condition;
   }
+  private set condition(condition: Condition) {
+    // Guard
+    if (this._condition === condition) return;
+
+    // Mutate
+    this._condition = condition;
+  }
 
   /**
    * The items that wait to be handed out, in the order `take()` hands them out
@@ -143,6 +150,8 @@ export class Queue<T extends object = Record<string, unknown>>
     const added = { ...item, priority: item.priority ?? Priority.LOWEST } as Item<T>;
 
     this.waiting = [...this.waiting, added];
+
+    this._syncCondition();
   };
 
   /**
@@ -206,6 +215,14 @@ export class Queue<T extends object = Record<string, unknown>>
     this.working = this.working.filter((item) => item.id !== id);
     this.waiting = [...this.waiting, item];
   };
+
+  /**
+   * Compute the condition of the queue from its items
+   * @category State
+   * @hidden
+   */
+  private _syncCondition = () =>
+    (this.condition = this.waiting.length ? Condition.WAITING : Condition.EMPTY);
 
   /**
    * Compare two waiting items: in a priority queue the higher priority comes first,
