@@ -138,7 +138,8 @@ export type Operation = (typeof Operation)[keyof typeof Operation];
 export const Event = {
   ON_ADD: "onadd",
   ON_TAKE: "ontake",
-  ON_UPDATE: "onupdate"
+  ON_UPDATE: "onupdate",
+  ON_REMOVE: "onremove"
 } as const;
 
 /**

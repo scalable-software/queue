@@ -89,6 +89,13 @@ export class Queue<T extends object = Record<string, unknown>>
   private _onupdate: EventListener | null = null;
 
   /**
+   * The handler of `onremove`
+   * @category Events
+   * @hidden
+   */
+  private _onremove: EventListener | null = null;
+
+  /**
    * Create a queue; `options.order` chooses the order in which it hands out its items
    * @category Lifecycle
    */
@@ -182,6 +189,15 @@ export class Queue<T extends object = Record<string, unknown>>
    */
   public set onupdate(handler: EventListener | null) {
     this._onupdate = this._subscribe(Event.ON_UPDATE, this._onupdate, handler);
+  }
+
+  /**
+   * Dispatched when an item is removed, with the item as the queue held it in `detail.item`
+   * @event
+   * @category Events
+   */
+  public set onremove(handler: EventListener | null) {
+    this._onremove = this._subscribe(Event.ON_REMOVE, this._onremove, handler);
   }
 
   /**
