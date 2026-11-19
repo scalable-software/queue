@@ -584,7 +584,9 @@ export class Queue<T extends object = Record<string, unknown>>
    * Remove every item, then delete the database named by `storage`; afterwards the queue lives in memory only
    * @category Operations
    */
-  public clear = async (): Promise<void> => {};
+  public clear = async (): Promise<void> => {
+    [...this.waiting, ...this.working].forEach(({ id }) => this.remove(id));
+  };
 
   /**
    * Compare two waiting items: in a priority queue the higher priority comes first,
