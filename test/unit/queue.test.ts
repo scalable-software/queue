@@ -519,6 +519,48 @@ data(Datum.WAITING, () => {
       expect(second.working).toEqual([]);
     });
   });
+
+  given("a queue with `storage` `uploads` holds `a`, and one with `storage` `downloads` holds `b`", () => {
+    let uploads: string;
+    let downloads: string;
+    let second: Queue;
+    beforeEach(async () => {
+      uploads = unique();
+      downloads = unique();
+      (await reopen(uploads)).add({ id: "a" });
+      (await reopen(downloads)).add({ id: "b" });
+      second = await reopen(uploads);
+    });
+    afterEach(async () => {
+      await drop(uploads);
+      await drop(downloads);
+    });
+
+    then("a second queue with `storage` `uploads` holds only `a`", () => {
+      expect(second.waiting.map(({ id }) => id)).toEqual(["a"]);
+    });
+  });
+
+  given("a queue with `{ order: Order.PRIORITY }` and `storage` holds `a` (5), `b` (9) and `c` (5)", () => {
+    let storage: string;
+    let second: Queue;
+    beforeEach(async () => {
+      storage = unique();
+      const first = new Queue({ order: Order.PRIORITY, storage });
+      await ready(first);
+      first.add({ id: "a", priority: 5 });
+      first.add({ id: "b", priority: 9 });
+      first.add({ id: "c", priority: 5 });
+      second = new Queue({ order: Order.PRIORITY, storage });
+      await ready(second);
+      second.add({ id: "d", priority: 5 });
+    });
+    afterEach(() => drop(storage));
+
+    then("a second such queue that adds `d` (5) holds `b`, `a`, `c`, then `d`", () => {
+      expect(second.waiting.map(({ id }) => id)).toEqual(["b", "a", "c", "d"]);
+    });
+  });
 });
 
 data(Datum.WORKING, () => {
