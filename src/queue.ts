@@ -268,11 +268,14 @@ export class Queue<T extends object = Record<string, unknown>>
   public remove = (id: string) => {
     id = Validate.id(id);
 
+    const item = this._find(id);
     const kept = (item: Item<T>) => item.id !== id;
 
     this.waiting = this.waiting.filter(kept);
     this.working = this.working.filter(kept);
     this._added.delete(id);
+
+    this._dispatch(Event.ON_REMOVE, { item });
 
     this._syncCondition();
   };
