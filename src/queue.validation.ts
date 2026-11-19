@@ -2,7 +2,7 @@
  * @module Queue
  */
 
-import { Order } from "./queue.meta.js";
+import { Order, Priority } from "./queue.meta.js";
 import type { Entry, Options } from "./queue.meta.js";
 
 /**
@@ -38,11 +38,18 @@ export class Validate {
       throw new Error(`Invalid item value: ${value}`);
 
     // Declared fields
-    const { id } = value as Record<string, unknown>;
+    const { id, priority } = value as Record<string, unknown>;
 
     if (id === undefined) throw new Error("Invalid item value: id is required");
     if (typeof id !== "string" || id === "")
       throw new Error("Invalid item value: id is invalid");
+
+    const ranked =
+      Number.isInteger(priority) &&
+      (priority as number) >= Priority.LOWEST &&
+      (priority as number) <= Priority.HIGHEST;
+    if (priority !== undefined && !ranked)
+      throw new Error("Invalid item value: priority is invalid");
 
     return value as Entry;
   };
