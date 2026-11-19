@@ -139,6 +139,14 @@ state(State.CONDITION, () => {
     then("`queue.condition` is `Condition.EMPTY`", () => {
       expect(queue.condition).toBe(Condition.EMPTY);
     });
+
+    then("assigning `queue.condition` does not compile", () => {
+      const assign = () => {
+        // @ts-expect-error: `condition` is computed by the queue
+        queue.condition = Condition.BUSY;
+      };
+      expect(assign).toEqual(jasmine.any(Function));
+    });
   });
 
   given("a queue is created, and `a` is added", () => {
