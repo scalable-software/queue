@@ -1,4 +1,4 @@
-import { State, Order, Operation, Event } from "@scalable.software/queue";
+import { State, Order, Condition, Operation, Event } from "@scalable.software/queue";
 
 // State
 metadata(Metadata.STATE, () => {
@@ -19,6 +19,14 @@ metadata(Metadata.STATE, () => {
 
         then("`State.ORDER` is `order`", () => {
           expect(State.ORDER).toBe("order");
+        });
+
+        then("`State.CONDITION` exists", () => {
+          expect(State.CONDITION).toBeDefined();
+        });
+
+        then("`State.CONDITION` is `condition`", () => {
+          expect(State.CONDITION).toBe("condition");
         });
       });
     });
@@ -51,6 +59,46 @@ metadata(State.ORDER, () => {
 
         then("`Order.PRIORITY` is `priority`", () => {
           expect(Order.PRIORITY).toBe("priority");
+        });
+      });
+    });
+  });
+});
+
+metadata(State.CONDITION, () => {
+  and("Condition imported", () => {
+    then("Condition is defined", () => {
+      expect(Condition).toBeDefined();
+    });
+
+    and("Condition is defined", () => {
+      then("Condition is an object", () => {
+        expect(typeof Condition).toBe("object");
+      });
+
+      when("Condition is an object", () => {
+        then("`Condition.EMPTY` exists", () => {
+          expect(Condition.EMPTY).toBeDefined();
+        });
+
+        then("`Condition.EMPTY` is `empty`", () => {
+          expect(Condition.EMPTY).toBe("empty");
+        });
+
+        then("`Condition.WAITING` exists", () => {
+          expect(Condition.WAITING).toBeDefined();
+        });
+
+        then("`Condition.WAITING` is `waiting`", () => {
+          expect(Condition.WAITING).toBe("waiting");
+        });
+
+        then("`Condition.BUSY` exists", () => {
+          expect(Condition.BUSY).toBeDefined();
+        });
+
+        then("`Condition.BUSY` is `busy`", () => {
+          expect(Condition.BUSY).toBe("busy");
         });
       });
     });

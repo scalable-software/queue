@@ -1,4 +1,4 @@
-import { Queue, State, Order } from "@scalable.software/queue";
+import { Queue, State, Order, Condition } from "@scalable.software/queue";
 
 // Configuration
 given("Queue imported", () => {
@@ -111,6 +111,23 @@ state(State.ORDER, () => {
 
     then("error message is 'Invalid options value: order is invalid'", () => {
       expect(error.message).toBe("Invalid options value: order is invalid");
+    });
+  });
+});
+
+state(State.CONDITION, () => {
+  given("a queue is created", () => {
+    let queue: Queue;
+    beforeEach(() => {
+      queue = new Queue();
+    });
+
+    then("`queue.condition` getter exists", () => {
+      expect(hasGetter(queue, State.CONDITION)).toBe(true);
+    });
+
+    then("`queue.condition` is `Condition.EMPTY`", () => {
+      expect(queue.condition).toBe(Condition.EMPTY);
     });
   });
 });
