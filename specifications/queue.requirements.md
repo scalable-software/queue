@@ -66,3 +66,8 @@ first out, so that work is done in the order it arrived.
 
 As a **host component**, when the details or the urgency of an item change, I want to change
 the item without losing its place or its progress, so that the queue stays correct.
+
+### STORY: Remove an Item
+
+As a **host component**, when the work for an item is done or is no longer needed, I want to
+remove the item, so that the queue holds only the work that remains.
