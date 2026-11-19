@@ -14,6 +14,7 @@ export type {
   Entry,
   Options,
   Ready,
+  Persisted,
   States,
   Data,
   Operations,

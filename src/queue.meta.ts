@@ -10,7 +10,8 @@
 export const State = {
   ORDER: "order",
   CONDITION: "condition",
-  READY: "ready"
+  READY: "ready",
+  PERSISTED: "persisted"
 } as const;
 
 /**
@@ -108,6 +109,12 @@ export type Items<T extends object = Record<string, unknown>> = readonly Item<T>
  * @category Metadata: State
  */
 export type Ready = boolean;
+
+/**
+ * Value domain of the `persisted` state: whether the queue's items survive a reload
+ * @category Metadata: State
+ */
+export type Persisted = boolean;
 
 /**
  * The options a host component gives the queue when it creates it; read once, not kept

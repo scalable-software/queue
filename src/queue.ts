@@ -4,7 +4,7 @@
 
 // Metadata
 import { Order, Condition, Priority, Event } from "./queue.meta.js";
-import type { Entry, Item, Items, Meta, Options, Ready } from "./queue.meta.js";
+import type { Entry, Item, Items, Meta, Options, Persisted, Ready } from "./queue.meta.js";
 
 // Validation
 import { Validate } from "./queue.validation.js";
@@ -38,6 +38,13 @@ export class Queue<T extends object = Record<string, unknown>>
    * @hidden
    */
   private _ready: Ready = false;
+
+  /**
+   * Whether the queue's items survive a reload
+   * @category State
+   * @hidden
+   */
+  private _persisted: Persisted = false;
 
   /**
    * The items that wait to be handed out, in the order they are handed out
@@ -178,6 +185,14 @@ export class Queue<T extends object = Record<string, unknown>>
    */
   public get ready(): Ready {
     return this._ready;
+  }
+
+  /**
+   * Whether the queue's items survive a reload: `true` once its database is open
+   * @category State
+   */
+  public get persisted(): Persisted {
+    return this._persisted;
   }
 
   /**
