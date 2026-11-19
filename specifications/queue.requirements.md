@@ -76,3 +76,9 @@ remove the item, so that the queue holds only the work that remains.
 
 As a **host component**, when the work on an item could not be finished, I want to put the
 item back among the waiting items, so that it is handed out again instead of being lost.
+
+### STORY: Change Announcements
+
+As a **host component**, I want to be told each time an item is added, changed, removed,
+taken or put back, together with the item, so that I react to the queue instead of checking
+it.
