@@ -37,6 +37,14 @@ metadata(Metadata.STATE, () => {
           expect(State.CONDITION).toBe("condition");
         });
 
+        then("`State.READY` exists", () => {
+          expect(State.READY).toBeDefined();
+        });
+
+        then("`State.READY` is `ready`", () => {
+          expect(State.READY).toBe("ready");
+        });
+
         then("no state name is taken by `EventTarget`", () => {
           const taken = Object.values(State).filter(
             (name) => name in EventTarget.prototype

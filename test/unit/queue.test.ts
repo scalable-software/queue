@@ -204,6 +204,23 @@ state(State.CONDITION, () => {
   });
 });
 
+state(State.READY, () => {
+  given("a queue is created", () => {
+    let queue: Queue;
+    beforeEach(() => {
+      queue = new Queue();
+    });
+
+    then("`queue.ready` getter exists", () => {
+      expect(hasGetter(queue, State.READY)).toBe(true);
+    });
+
+    then("`queue.ready` is `false`", () => {
+      expect(queue.ready).toBe(false);
+    });
+  });
+});
+
 // Data
 data(Datum.WAITING, () => {
   given("a queue is created", () => {
