@@ -1329,3 +1329,16 @@ events(Event.ON_PUT_BACK, () => {
     });
   });
 });
+
+events(Event.ON_WAITING, () => {
+  and("a queue is created", () => {
+    let queue: Queue;
+    beforeEach(() => {
+      queue = new Queue();
+    });
+
+    then("`queue.onwaiting` setter exists", () => {
+      expect(hasSetter(queue, Event.ON_WAITING)).toBe(true);
+    });
+  });
+});

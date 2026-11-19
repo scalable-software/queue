@@ -317,6 +317,14 @@ metadata(Metadata.EVENT, () => {
           expect(Event.ON_PUT_BACK).toBe("onputback");
         });
 
+        then("`Event.ON_WAITING` exists", () => {
+          expect(Event.ON_WAITING).toBeDefined();
+        });
+
+        then("`Event.ON_WAITING` is `onwaiting`", () => {
+          expect(Event.ON_WAITING).toBe("onwaiting");
+        });
+
         then("no event name is taken by `EventTarget`", () => {
           const taken = Object.values(Event).filter(
             (name) => name in EventTarget.prototype
