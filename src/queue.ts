@@ -183,7 +183,12 @@ export class Queue<T extends object = Record<string, unknown>>
    * Remove the item with the given id, waiting or being worked on
    * @category Operations
    */
-  public remove = (id: string) => {};
+  public remove = (id: string) => {
+    const kept = (item: Item<T>) => item.id !== id;
+
+    this.waiting = this.waiting.filter(kept);
+    this._added.delete(id);
+  };
 
   /**
    * Compare two waiting items: in a priority queue the higher priority comes first,
