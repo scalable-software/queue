@@ -166,7 +166,7 @@ export class Queue<T extends object = Record<string, unknown>>
   public peek = (): Item<T> | null => this.waiting[0] ?? null;
 
   /**
-   * Change the item with the given `id`: the given fields replace the item\x27s own, and it keeps its place
+   * Change the item with the given `id`: the given fields replace the item's own, and it keeps its place
    * @category Operations
    */
   public update = (item: Entry<T>) => {
@@ -174,6 +174,7 @@ export class Queue<T extends object = Record<string, unknown>>
       stored.id === item.id ? ({ ...stored, ...item } as Item<T>) : stored;
 
     this.waiting = this.waiting.map(change);
+    this.working = this.working.map(change);
   };
 
   /**
