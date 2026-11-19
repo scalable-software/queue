@@ -10,10 +10,10 @@
 <h1>queue</h1></div>
 <div class="tsd-panel tsd-typography"><p><img src="https://flat.badgen.net/static/license/CC-BY-NC-SA-4.0/green" alt="License: CC BY-NC-SA 4.0"></p>
 <h1 id="queue" class="tsd-anchor-link">Queue<a href="#queue" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h1>
-<p>The <strong>Queue</strong> is a reactive queue for web components built with Scalable.Software standards and practices. A host component creates a queue for itself and keeps it in a private field. The queue holds items with an id and a priority, hands them out in order, keeps them in IndexedDB so that they survive a reload, and dispatches an event for every change.</p>
-<p>The Queue is an add-on, not a custom element: it extends <strong>EventTarget</strong>, and has no tag, template, stylesheet or attributes. It runs in the browser only.</p>
+<p>The <strong>Queue</strong> is a reactive queue for web components built with Scalable.Software standards and practices. A host component creates a queue for itself and keeps it in a private field. The queue holds items with an id and a priority, hands them out in order, and dispatches an event for every change, so that the component reacts to the queue instead of checking it.</p>
+<p>The Queue is an add-on, not a custom element: it extends <strong>EventTarget</strong>, and has no tag, template, stylesheet or attributes. It runs in the browser only. A queue belongs to one component: it is not shared between components, workers or tabs.</p>
 <blockquote>
-<p>The Queue is being built. Its requirements are in <a href="media/queue.requirements.md"><code>specifications/queue.requirements.md</code></a>, and its contract grows in <a href="media/queue.specifications.json"><code>specifications/queue.specifications.json</code></a> one story at a time. This README describes the API once it exists.</p>
+<p>Keeping the items in IndexedDB, so that they survive a reload, is the next feature, Persistent Queue. Until then a queue lives in memory. The requirements are in <a href="media/queue.requirements.md"><code>specifications/queue.requirements.md</code></a>, and the contract in <a href="media/queue.specifications.json"><code>specifications/queue.specifications.json</code></a>.</p>
 </blockquote>
 <h2 id="installation" class="tsd-anchor-link">Installation<a href="#installation" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h2>
 <pre><code class="bash"><span class="hl-0">npm</span><span class="hl-1"> </span><span class="hl-2">install</span><span class="hl-1"> </span><span class="hl-2">@scalable.software/queue</span>
@@ -22,7 +22,211 @@
 <pre><code class="js"><span class="hl-3">import</span><span class="hl-1"> { </span><span class="hl-4">Queue</span><span class="hl-1"> } </span><span class="hl-3">from</span><span class="hl-1"> </span><span class="hl-2">&quot;@scalable.software/queue&quot;</span><span class="hl-1">;</span>
 </code><button type="button">Copy</button></pre>
 
-<p>The metadata (<code>State</code>, <code>Operation</code>, <code>Event</code>) is also importable on its own as <code>@scalable.software/queue/meta</code>. It needs neither the DOM nor the <code>Queue</code> class.</p>
+<p>The metadata (<code>State</code>, <code>Order</code>, <code>Condition</code>, <code>Datum</code>, <code>Priority</code>, <code>Operation</code>, <code>Event</code> and the types) is also importable on its own as <code>@scalable.software/queue/meta</code>. It needs neither the DOM nor the <code>Queue</code> class.</p>
+<h2 id="quick-start" class="tsd-anchor-link">Quick Start<a href="#quick-start" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h2>
+<pre><code class="ts"><span class="hl-3">import</span><span class="hl-1"> { </span><span class="hl-4">Queue</span><span class="hl-1">, </span><span class="hl-4">Order</span><span class="hl-1"> } </span><span class="hl-3">from</span><span class="hl-1"> </span><span class="hl-2">&quot;@scalable.software/queue&quot;</span><span class="hl-1">;</span><br/><br/><span class="hl-5">type</span><span class="hl-1"> </span><span class="hl-6">Upload</span><span class="hl-1"> = { </span><span class="hl-4">file</span><span class="hl-1">: </span><span class="hl-6">File</span><span class="hl-1"> };</span><br/><br/><span class="hl-5">class</span><span class="hl-1"> </span><span class="hl-6">Uploader</span><span class="hl-1"> </span><span class="hl-5">extends</span><span class="hl-1"> </span><span class="hl-6">HTMLElement</span><span class="hl-1"> {</span><br/><span class="hl-1">  </span><span class="hl-4">#queue</span><span class="hl-1"> = </span><span class="hl-5">new</span><span class="hl-1"> </span><span class="hl-0">Queue</span><span class="hl-1">&lt;</span><span class="hl-6">Upload</span><span class="hl-1">&gt;({ </span><span class="hl-4">order:</span><span class="hl-1"> </span><span class="hl-4">Order</span><span class="hl-1">.</span><span class="hl-7">PRIORITY</span><span class="hl-1"> });</span><br/><br/><span class="hl-1">  </span><span class="hl-5">constructor</span><span class="hl-1">() {</span><br/><span class="hl-1">    </span><span class="hl-5">super</span><span class="hl-1">();</span><br/><span class="hl-1">    </span><span class="hl-5">this</span><span class="hl-1">.</span><span class="hl-4">#queue</span><span class="hl-1">.</span><span class="hl-0">onadd</span><span class="hl-1"> = ({ </span><span class="hl-4">detail</span><span class="hl-1"> }: </span><span class="hl-6">CustomEvent</span><span class="hl-1">) </span><span class="hl-5">=&gt;</span><span class="hl-1"> </span><span class="hl-4">console</span><span class="hl-1">.</span><span class="hl-0">log</span><span class="hl-1">(</span><span class="hl-2">&quot;queued&quot;</span><span class="hl-1">, </span><span class="hl-4">detail</span><span class="hl-1">.</span><span class="hl-4">item</span><span class="hl-1">.</span><span class="hl-4">id</span><span class="hl-1">);</span><br/><span class="hl-1">    </span><span class="hl-5">this</span><span class="hl-1">.</span><span class="hl-4">#queue</span><span class="hl-1">.</span><span class="hl-0">onbusy</span><span class="hl-1"> = () </span><span class="hl-5">=&gt;</span><span class="hl-1"> </span><span class="hl-5">this</span><span class="hl-1">.</span><span class="hl-0">setAttribute</span><span class="hl-1">(</span><span class="hl-2">&quot;busy&quot;</span><span class="hl-1">, </span><span class="hl-2">&quot;&quot;</span><span class="hl-1">);</span><br/><span class="hl-1">    </span><span class="hl-5">this</span><span class="hl-1">.</span><span class="hl-4">#queue</span><span class="hl-1">.</span><span class="hl-0">onempty</span><span class="hl-1"> = () </span><span class="hl-5">=&gt;</span><span class="hl-1"> </span><span class="hl-5">this</span><span class="hl-1">.</span><span class="hl-0">removeAttribute</span><span class="hl-1">(</span><span class="hl-2">&quot;busy&quot;</span><span class="hl-1">);</span><br/><span class="hl-1">  }</span><br/><br/><span class="hl-1">  </span><span class="hl-0">upload</span><span class="hl-1"> = (</span><span class="hl-4">file</span><span class="hl-1">: </span><span class="hl-6">File</span><span class="hl-1">, </span><span class="hl-4">urgent</span><span class="hl-1"> = </span><span class="hl-5">false</span><span class="hl-1">) </span><span class="hl-5">=&gt;</span><br/><span class="hl-1">    </span><span class="hl-5">this</span><span class="hl-1">.</span><span class="hl-4">#queue</span><span class="hl-1">.</span><span class="hl-0">add</span><span class="hl-1">({ </span><span class="hl-4">id:</span><span class="hl-1"> </span><span class="hl-4">file</span><span class="hl-1">.</span><span class="hl-4">name</span><span class="hl-1">, </span><span class="hl-4">file</span><span class="hl-1">, </span><span class="hl-4">priority:</span><span class="hl-1"> </span><span class="hl-4">urgent</span><span class="hl-1"> ? </span><span class="hl-8">10</span><span class="hl-1"> : </span><span class="hl-8">1</span><span class="hl-1"> });</span><br/><br/><span class="hl-1">  </span><span class="hl-0">uploadNext</span><span class="hl-1"> = </span><span class="hl-5">async</span><span class="hl-1"> () </span><span class="hl-5">=&gt;</span><span class="hl-1"> {</span><br/><span class="hl-1">    </span><span class="hl-5">const</span><span class="hl-1"> </span><span class="hl-7">item</span><span class="hl-1"> = </span><span class="hl-5">this</span><span class="hl-1">.</span><span class="hl-4">#queue</span><span class="hl-1">.</span><span class="hl-0">take</span><span class="hl-1">(); </span><span class="hl-9">// now in `working`, never handed out twice</span><br/><span class="hl-1">    </span><span class="hl-3">if</span><span class="hl-1"> (!</span><span class="hl-4">item</span><span class="hl-1">) </span><span class="hl-3">return</span><span class="hl-1">;</span><br/><span class="hl-1">    </span><span class="hl-3">try</span><span class="hl-1"> {</span><br/><span class="hl-1">      </span><span class="hl-3">await</span><span class="hl-1"> </span><span class="hl-0">send</span><span class="hl-1">(</span><span class="hl-4">item</span><span class="hl-1">.</span><span class="hl-4">file</span><span class="hl-1">);</span><br/><span class="hl-1">      </span><span class="hl-5">this</span><span class="hl-1">.</span><span class="hl-4">#queue</span><span class="hl-1">.</span><span class="hl-0">remove</span><span class="hl-1">(</span><span class="hl-4">item</span><span class="hl-1">.</span><span class="hl-4">id</span><span class="hl-1">); </span><span class="hl-9">// done</span><br/><span class="hl-1">    } </span><span class="hl-3">catch</span><span class="hl-1"> {</span><br/><span class="hl-1">      </span><span class="hl-5">this</span><span class="hl-1">.</span><span class="hl-4">#queue</span><span class="hl-1">.</span><span class="hl-0">putBack</span><span class="hl-1">(</span><span class="hl-4">item</span><span class="hl-1">.</span><span class="hl-4">id</span><span class="hl-1">); </span><span class="hl-9">// waits again, in the place it had</span><br/><span class="hl-1">    }</span><br/><span class="hl-1">  };</span><br/><span class="hl-1">}</span>
+</code><button type="button">Copy</button></pre>
+
+<p>Retrying, timing out and scheduling are the host's to decide: the queue never hands an item out by itself.</p>
+<p>To try the queue by hand, run <code>npm run serve</code>: the demo page adds, takes, changes, removes and puts back items, and logs every event.</p>
+<h2 id="items" class="tsd-anchor-link">Items<a href="#items" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h2>
+<p>An item is the host's own object with an <code>id</code> and a <code>priority</code> beside its other fields: <code>Item&lt;T&gt; = T &amp; { id: string; priority: number }</code>.</p>
+<ul>
+<li><code>id</code> is a non-empty string, unique in the queue.</li>
+<li><code>priority</code> is a whole number from <code>Priority.LOWEST</code> (1) to <code>Priority.HIGHEST</code> (10). An item added without one has priority 1.</li>
+<li>The queue keeps every other field as the host gave it.</li>
+</ul>
+<p>The queue holds its own copy of each item, deep-frozen: changing the object you added changes nothing in the queue, and the items the queue hands out cannot be changed. A field that <code>structuredClone</code> cannot copy, such as a function, cannot be put in the queue.</p>
+<h2 id="order" class="tsd-anchor-link">Order<a href="#order" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h2>
+<p>The order is chosen once, when the queue is created, and read from <code>queue.order</code>.</p>
+<table>
+<thead>
+<tr>
+<th><code>order</code></th>
+<th>Hands out</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Order.FIFO</code> (default)</td>
+<td>the items in the order they were added</td>
+</tr>
+<tr>
+<td><code>Order.PRIORITY</code></td>
+<td>the highest priority first, and the earliest added first among equals</td>
+</tr>
+</tbody>
+</table>
+<p>An item keeps the place its first addition gave it: it keeps it when it is changed, and gets it back when it is put back.</p>
+<h2 id="data" class="tsd-anchor-link">Data<a href="#data" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h2>
+<table>
+<thead>
+<tr>
+<th>Property</th>
+<th>Holds</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>queue.waiting</code></td>
+<td>the items that wait, in the order <code>take()</code> hands them out</td>
+</tr>
+<tr>
+<td><code>queue.working</code></td>
+<td>the items that have been taken and are being worked on, in the order they were taken</td>
+</tr>
+</tbody>
+</table>
+<p>Both are readonly, frozen lists.</p>
+<h2 id="states" class="tsd-anchor-link">States<a href="#states" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h2>
+<table>
+<thead>
+<tr>
+<th>State</th>
+<th>Values</th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>order</code></td>
+<td><code>fifo</code>, <code>priority</code></td>
+<td>readonly, chosen when the queue is created</td>
+</tr>
+<tr>
+<td><code>condition</code></td>
+<td><code>empty</code>, <code>waiting</code>, <code>busy</code></td>
+<td>readonly: <code>waiting</code> while any item waits, <code>busy</code> while items are worked on and none waits</td>
+</tr>
+</tbody>
+</table>
+<h2 id="operations" class="tsd-anchor-link">Operations<a href="#operations" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h2>
+<table>
+<thead>
+<tr>
+<th>Operation</th>
+<th>Does</th>
+<th>Returns</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>add(item)</code></td>
+<td>puts the item at its place among the waiting items</td>
+<td><code>void</code></td>
+</tr>
+<tr>
+<td><code>take()</code></td>
+<td>hands out the next waiting item and moves it to <code>working</code>, so it is never handed out twice</td>
+<td>the item, or <code>null</code> when none waits</td>
+</tr>
+<tr>
+<td><code>peek()</code></td>
+<td>shows the item <code>take()</code> would hand out, without taking it</td>
+<td>the item, or <code>null</code></td>
+</tr>
+<tr>
+<td><code>update(item)</code></td>
+<td>changes the item with <code>item.id</code>: the given fields replace its own, and it keeps its place and progress</td>
+<td><code>void</code></td>
+</tr>
+<tr>
+<td><code>remove(id)</code></td>
+<td>removes the item, waiting or being worked on</td>
+<td><code>void</code></td>
+</tr>
+<tr>
+<td><code>putBack(id)</code></td>
+<td>puts an item that is being worked on back among the waiting items</td>
+<td><code>void</code></td>
+</tr>
+</tbody>
+</table>
+<p><code>update</code>, <code>remove</code> and <code>putBack</code> do nothing for an id the queue does not hold (and <code>putBack</code> for an item that waits).</p>
+<h2 id="events" class="tsd-anchor-link">Events<a href="#events" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h2>
+<table>
+<thead>
+<tr>
+<th>Event</th>
+<th>Dispatched when</th>
+<th><code>detail</code></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>onadd</code></td>
+<td>an item is added</td>
+<td><code>{ item }</code></td>
+</tr>
+<tr>
+<td><code>ontake</code></td>
+<td>an item is taken</td>
+<td><code>{ item }</code></td>
+</tr>
+<tr>
+<td><code>onupdate</code></td>
+<td>an item is changed</td>
+<td><code>{ item }</code></td>
+</tr>
+<tr>
+<td><code>onremove</code></td>
+<td>an item is removed</td>
+<td><code>{ item }</code>, as the queue held it</td>
+</tr>
+<tr>
+<td><code>onputback</code></td>
+<td>an item is put back</td>
+<td><code>{ item }</code></td>
+</tr>
+<tr>
+<td><code>onwaiting</code></td>
+<td><code>condition</code> changes to <code>waiting</code></td>
+<td><code>{ condition }</code></td>
+</tr>
+<tr>
+<td><code>onbusy</code></td>
+<td><code>condition</code> changes to <code>busy</code></td>
+<td><code>{ condition }</code></td>
+</tr>
+<tr>
+<td><code>onempty</code></td>
+<td><code>condition</code> changes to <code>empty</code></td>
+<td><code>{ condition }</code></td>
+</tr>
+</tbody>
+</table>
+<p>Assigning an <code>on…</code> property replaces its listener, and <code>null</code> removes it; <code>addEventListener</code> with the same names works too. <code>detail.item</code> is the item as the queue holds it. A condition event comes after the event for the item that caused it.</p>
+<h2 id="errors" class="tsd-anchor-link">Errors<a href="#errors" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h2>
+<table>
+<thead>
+<tr>
+<th>Thrown by</th>
+<th>Message</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>new Queue(options)</code></td>
+<td><code>Invalid options value: &lt;value&gt;</code>, <code>Invalid options value: order is invalid</code></td>
+</tr>
+<tr>
+<td><code>add</code>, <code>update</code></td>
+<td><code>Invalid item value: &lt;value&gt;</code>, <code>Invalid item value: id is required</code>, <code>… id is invalid</code>, <code>… priority is invalid</code></td>
+</tr>
+<tr>
+<td><code>add</code></td>
+<td><code>Invalid item value: id is already in the queue</code></td>
+</tr>
+<tr>
+<td><code>remove</code>, <code>putBack</code></td>
+<td><code>Invalid id value: &lt;value&gt;</code></td>
+</tr>
+<tr>
+<td>an <code>on…</code> property</td>
+<td><code>Invalid &lt;event&gt; value: &lt;value&gt;</code>, for a value that is not a function</td>
+</tr>
+</tbody>
+</table>
 <h2 id="development" class="tsd-anchor-link">Development<a href="#development" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h2>
 <pre><code class="bash"><span class="hl-0">npm</span><span class="hl-1"> </span><span class="hl-2">install</span>
 </code><button type="button">Copy</button></pre>
@@ -87,6 +291,14 @@
 <div class="tsd-accordion-details"><a href="#queue"><span>Queue</span></a>
 <ul>
 <li><a href="#installation"><span>Installation</span></a></li>
+<li><a href="#quick-start"><span>Quick <wbr/>Start</span></a></li>
+<li><a href="#items"><span>Items</span></a></li>
+<li><a href="#order"><span>Order</span></a></li>
+<li><a href="#data"><span>Data</span></a></li>
+<li><a href="#states"><span>States</span></a></li>
+<li><a href="#operations"><span>Operations</span></a></li>
+<li><a href="#events"><span>Events</span></a></li>
+<li><a href="#errors"><span>Errors</span></a></li>
 <li><a href="#development"><span>Development</span></a></li>
 <li><a href="#license"><span>License</span></a></li></ul></div></details></div>
 <div class="site-menu">
