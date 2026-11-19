@@ -873,6 +873,32 @@ operation(Operation.PUT_BACK, () => {
       });
     });
   });
+
+  and("a queue is created", () => {
+    let queue: Queue;
+    beforeEach(() => {
+      queue = new Queue();
+    });
+
+    when("`queue.putBack(\"\")` is invoked", () => {
+      let error: Error;
+      beforeEach(() => {
+        try {
+          queue.putBack("");
+        } catch (err) {
+          error = err as Error;
+        }
+      });
+
+      then("an error is thrown", () => {
+        expect(error).toBeDefined();
+      });
+
+      then("error message is 'Invalid id value: '", () => {
+        expect(error?.message).toBe("Invalid id value: ");
+      });
+    });
+  });
 });
 
 // Event
