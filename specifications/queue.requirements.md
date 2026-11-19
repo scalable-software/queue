@@ -136,3 +136,9 @@ back, so that I take work only from a complete queue.
 
 As a **host component**, when other components on the same site also keep queues, I want my
 queue stored under its own name, so that queues never mix.
+
+### STORY: Storage Unavailable
+
+As a **host component**, when the browser refuses to store anything, for example in a private
+window, I want the queue to keep working for this page and to tell me its items will not
+survive a reload, so that the work goes on and I can warn the end user.
