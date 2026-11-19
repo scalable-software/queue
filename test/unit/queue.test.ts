@@ -1911,4 +1911,48 @@ events(Event.ON_UNAVAILABLE, () => {
       expect(hasSetter(queue, Event.ON_UNAVAILABLE)).toBe(true);
     });
   });
+
+  and("the browser refuses to open a database", () => {
+    beforeEach(() => {
+      spyOn(indexedDB, "open").and.throwError(new DOMException("refused", "SecurityError"));
+    });
+
+    when("a queue with `storage` is created, and `queue.onunavailable` is assigned a listener", () => {
+      let queue: Queue;
+      let onunavailable: jasmine.Spy;
+      let onready: jasmine.Spy;
+      beforeEach(async () => {
+        queue = new Queue({ storage: unique() });
+        onunavailable = jasmine.createSpy("onunavailable");
+        onready = jasmine.createSpy("onready");
+        queue.onunavailable = onunavailable;
+        queue.onready = onready;
+        await settle();
+      });
+
+      then("the listener is called once, with `detail.persisted` `false`", () => {
+        expect(onunavailable).toHaveBeenCalledOnceWith(
+          jasmine.objectContaining({ detail: { persisted: false } })
+        );
+      });
+
+      then("`queue.persisted` is `false`", () => {
+        expect(queue.persisted).toBe(false);
+      });
+
+      then("`onready` is still dispatched", () => {
+        expect(onready).toHaveBeenCalledTimes(1);
+      });
+
+      when("`a` is added", () => {
+        beforeEach(() => {
+          queue.add({ id: "a" });
+        });
+
+        then("`queue.waiting` holds `a`", () => {
+          expect(queue.waiting.map(({ id }) => id)).toEqual(["a"]);
+        });
+      });
+    });
+  });
 });
