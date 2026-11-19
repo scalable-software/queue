@@ -739,6 +739,25 @@ operation(Operation.REMOVE, () => {
       });
     });
   });
+
+  and("a queue is created, and `a` is added and taken", () => {
+    let queue: Queue;
+    beforeEach(() => {
+      queue = new Queue();
+      queue.add({ id: "a" });
+      queue.take();
+    });
+
+    when("`queue.remove(\"a\")` is invoked", () => {
+      beforeEach(() => {
+        queue.remove("a");
+      });
+
+      then("`queue.working` is empty", () => {
+        expect(queue.working).toEqual([]);
+      });
+    });
+  });
 });
 
 // Event
