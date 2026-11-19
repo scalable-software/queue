@@ -1,6 +1,6 @@
 {
   "name": "@scalable.software/queue",
-  "version": "0.4.0",
+  "version": "0.1.0",
   "description": "A reactive, persistent queue add-on for web components: it holds items with an id and a priority, hands them out in order, keeps them in IndexedDB and dispatches an event for every change.",
   "keywords": [
     "web component queue addon"
