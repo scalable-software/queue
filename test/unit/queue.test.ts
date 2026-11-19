@@ -531,6 +531,24 @@ operation(Operation.PEEK, () => {
       });
     });
   });
+
+  and("a queue is created with no items", () => {
+    let queue: Queue;
+    beforeEach(() => {
+      queue = new Queue();
+    });
+
+    when("`queue.peek()` is invoked", () => {
+      let result: Item | null;
+      beforeEach(() => {
+        result = queue.peek();
+      });
+
+      then("`null` is returned", () => {
+        expect(result).toBeNull();
+      });
+    });
+  });
 });
 
 // Event
