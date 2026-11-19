@@ -7,7 +7,12 @@
   ],
   "exports": {
     ".": {
+      "types": "./dist/index.d.ts",
       "import": "./dist/index.js"
+    },
+    "./meta": {
+      "types": "./dist/queue.meta.d.ts",
+      "default": "./dist/queue.meta.js"
     }
   },
   "types": "dist/index.d.ts",
