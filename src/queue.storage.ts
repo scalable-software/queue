@@ -38,13 +38,21 @@ export class Storage<T extends object = Record<string, unknown>> {
    * The open database; every read and write waits for it, in the order it was asked for
    * @hidden
    */
-  private _database: Promise<IDBDatabase>;
+  private _database: Promise<IDBDatabase | null>;
+
+  /**
+   * Told once when the browser refuses the database; nothing is read or written afterwards
+   * @hidden
+   */
+  private _onfail: () => void;
 
   /**
    * Open the database named `name`, creating it the first time
+   * @param onfail - Told once when the browser refuses to open or to write the database
    */
-  constructor(name: string) {
-    this._database = this._open(name);
+  constructor(name: string, onfail: () => void) {
+    this._onfail = onfail;
+    this._database = this._open(name).catch(this._fail);
   }
 
   /**
@@ -52,6 +60,7 @@ export class Storage<T extends object = Record<string, unknown>> {
    */
   public read = async (): Promise<Stored<T>[]> => {
     const database = await this._database;
+    if (!database) return [];
     return this._request<Stored<T>[]>(
       database.transaction(ITEMS, "readonly").objectStore(ITEMS).getAll()
     );
@@ -62,6 +71,7 @@ export class Storage<T extends object = Record<string, unknown>> {
    */
   public put = (...records: Stored<T>[]) => {
     this._database = this._database.then((database) => {
+      if (!database) return null;
       const store = database.transaction(ITEMS, "readwrite").objectStore(ITEMS);
       records.forEach((record) => store.put(record));
       return database;
@@ -73,6 +83,7 @@ export class Storage<T extends object = Record<string, unknown>> {
    */
   public delete = (id: string) => {
     this._database = this._database.then((database) => {
+      if (!database) return null;
       database.transaction(ITEMS, "readwrite").objectStore(ITEMS).delete(id);
       return database;
     });
@@ -83,7 +94,7 @@ export class Storage<T extends object = Record<string, unknown>> {
    * connection wants to delete or upgrade it
    * @hidden
    */
-  private _open = (name: string): Promise<IDBDatabase> => {
+  private _open = async (name: string): Promise<IDBDatabase> => {
     const request = indexedDB.open(name, VERSION);
     request.onupgradeneeded = () =>
       request.result.createObjectStore(ITEMS, { keyPath: "id" });
@@ -91,6 +102,15 @@ export class Storage<T extends object = Record<string, unknown>> {
       database.onversionchange = () => database.close();
       return database;
     });
+  };
+
+  /**
+   * Tell the queue that the browser refused the database
+   * @hidden
+   */
+  private _fail = (): null => {
+    this._onfail();
+    return null;
   };
 
   /**

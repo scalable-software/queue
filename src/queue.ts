@@ -171,7 +171,7 @@ export class Queue<T extends object = Record<string, unknown>>
     const { order, storage } = Validate.options(options);
 
     this._order = order ?? Order.FIFO;
-    this._storage = storage ? new Storage<T>(storage) : null;
+    this._storage = storage ? new Storage<T>(storage, this._unavailable) : null;
 
     queueMicrotask(this._restore);
   }
@@ -536,6 +536,20 @@ export class Queue<T extends object = Record<string, unknown>>
     this.ready = true;
 
     this._syncCondition();
+  };
+
+  /**
+   * The browser refused the database: go on in memory, and say so once
+   * @category Data
+   * @hidden
+   */
+  private _unavailable = () => {
+    if (!this._storage) return;
+
+    this._storage = null;
+    this.persisted = false;
+
+    this._dispatch(Event.ON_UNAVAILABLE, { persisted: false });
   };
 
   /**
