@@ -488,12 +488,26 @@ export class Queue<T extends object = Record<string, unknown>>
   private _restore = async () => {
     const stored = (await this._storage?.read()) ?? [];
 
-    const restored = stored.sort((a, b) => a.added - b.added);
-    restored.forEach(({ id }) => this._added.set(id, this._count++));
+    // The queue keeps the items added since it was created, before any stored with the same id
+    const restored = stored
+      .filter(({ id }) => !this._find(id))
+      .sort((a, b) => a.added - b.added);
+
+    // Number the restored items first, then the items added since the queue was created
+    const added = [...this.waiting, ...this.working]
+      .map(({ id }) => id)
+      .sort((a, b) => this._added.get(a)! - this._added.get(b)!);
+    this._count = 0;
+    [...restored.map(({ id }) => id), ...added].forEach((id) =>
+      this._added.set(id, this._count++)
+    );
+
     const items = (working: boolean) =>
       restored.filter((record) => record.working === working).map(({ item }) => item);
     this.waiting = [...this.waiting, ...items(false)];
-    this.working = [...this.working, ...items(true)];
+    this.working = [...items(true), ...this.working];
+
+    [...this.waiting, ...this.working].forEach(({ id }) => this._save(id));
 
     this.ready = true;
 
