@@ -114,6 +114,34 @@ validation("options", () => {
   });
 });
 
+validation("options", () => {
+  given("Validate is imported", () => {
+    and("`value` is `{\"storage\":\"uploads\"}`", () => {
+      let value: unknown;
+      beforeEach(() => {
+        value = { storage: "uploads" };
+      });
+
+      when("`Validate.options(value)` is called", () => {
+        let result: unknown;
+        beforeEach(() => {
+          result = Validate.options(value);
+        });
+
+        then("`value` is returned", () => {
+          expect(result).toBe(value);
+        });
+      });
+    });
+
+    rejects("options", (value) => Validate.options(value), [
+      [{ storage: "" }, "Invalid options value: storage is invalid"],
+      [{ storage: 1 }, "Invalid options value: storage is invalid"],
+      [{ storage: null }, "Invalid options value: storage is invalid"]
+    ]);
+  });
+});
+
 // Item
 validation("item", () => {
   given("Validate is imported", () => {
