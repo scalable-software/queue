@@ -1258,4 +1258,25 @@ events(Event.ON_REMOVE, () => {
       });
     });
   });
+
+  and("a queue is created, `a` is added, and `queue.onremove` is assigned a listener", () => {
+    let queue: Queue;
+    let onremove: jasmine.Spy;
+    beforeEach(() => {
+      queue = new Queue();
+      queue.add({ id: "a" });
+      onremove = jasmine.createSpy("onremove");
+      queue.onremove = onremove;
+    });
+
+    when("`queue.remove(\"z\")` is invoked", () => {
+      beforeEach(() => {
+        queue.remove("z");
+      });
+
+      then("the listener is not called", () => {
+        expect(onremove).not.toHaveBeenCalled();
+      });
+    });
+  });
 });
