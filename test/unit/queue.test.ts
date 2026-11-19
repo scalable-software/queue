@@ -355,6 +355,34 @@ operation(Operation.ADD, () => {
       });
     });
   });
+
+  and("a queue is created, and `a` is added and taken", () => {
+    let queue: Queue;
+    beforeEach(() => {
+      queue = new Queue();
+      queue.add({ id: "a" });
+      queue.take();
+    });
+
+    when("`queue.add({ id: \"a\" })` is invoked", () => {
+      let error: Error;
+      beforeEach(() => {
+        try {
+          queue.add({ id: "a" });
+        } catch (err) {
+          error = err as Error;
+        }
+      });
+
+      then("error message is 'Invalid item value: id is already in the queue'", () => {
+        expect(error?.message).toBe("Invalid item value: id is already in the queue");
+      });
+
+      then("`queue.waiting` is empty", () => {
+        expect(queue.waiting).toEqual([]);
+      });
+    });
+  });
 });
 
 operation(Operation.TAKE, () => {
