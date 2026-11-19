@@ -4,7 +4,7 @@
 
 // Metadata
 import { Order, Condition } from "./queue.meta.js";
-import type { Meta, Options } from "./queue.meta.js";
+import type { Items, Meta, Options } from "./queue.meta.js";
 
 // Validation
 import { Validate } from "./queue.validation.js";
@@ -14,7 +14,10 @@ import { Validate } from "./queue.validation.js";
  * It is an add-on, not a custom element: an `EventTarget` with no tag, template or stylesheet.
  * @category Queue
  */
-export class Queue extends EventTarget implements Meta {
+export class Queue<T extends object = Record<string, unknown>>
+  extends EventTarget
+  implements Meta
+{
   /**
    * The order in which the queue hands out its waiting items
    * @category State
@@ -28,6 +31,13 @@ export class Queue extends EventTarget implements Meta {
    * @hidden
    */
   private _condition: Condition = Condition.EMPTY;
+
+  /**
+   * The items that wait to be handed out, in the order they are handed out
+   * @category Data
+   * @hidden
+   */
+  private _waiting: Items<T> = Object.freeze([]);
 
   /**
    * Create a queue; `options.order` chooses the order in which it hands out its items
@@ -56,5 +66,13 @@ export class Queue extends EventTarget implements Meta {
    */
   public get condition(): Condition {
     return this._condition;
+  }
+
+  /**
+   * The items that wait to be handed out, in the order `take()` hands them out
+   * @category Data
+   */
+  public get waiting(): Items<T> {
+    return this._waiting;
   }
 }

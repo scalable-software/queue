@@ -52,6 +52,37 @@ export const Condition = {
 export type Condition = (typeof Condition)[keyof typeof Condition];
 
 /**
+ * Data names exposed by the Queue public API
+ * @category Metadata: Data
+ * @enum
+ */
+export const Datum = {
+  WAITING: "waiting"
+} as const;
+
+/**
+ * Data names exposed by the Queue public API
+ * @category Metadata: Data
+ */
+export type Datum = (typeof Datum)[keyof typeof Datum];
+
+/**
+ * An item of the queue: the host's own object, with an `id` that is unique in the queue and a
+ * `priority` from 1 (lowest) to 10 (highest); the queue keeps every other field as the host gave it
+ * @category Metadata: Data
+ */
+export type Item<T extends object = Record<string, unknown>> = T & {
+  id: string;
+  priority: number;
+};
+
+/**
+ * A list of items, as the queue holds it
+ * @category Metadata: Data
+ */
+export type Items<T extends object = Record<string, unknown>> = readonly Item<T>[];
+
+/**
  * The options a host component gives the queue when it creates it; read once, not kept
  * @category Configuration
  */
@@ -92,6 +123,12 @@ export type Event = (typeof Event)[keyof typeof Event];
 export type States = Record<State, unknown>;
 
 /**
+ * Every data item the queue must have
+ * @category Metadata
+ */
+export type Data = Record<Datum, unknown>;
+
+/**
  * Every operation the queue must have
  * @category Metadata
  */
@@ -107,4 +144,4 @@ export type Events = Record<Event, EventListener | null>;
  * Everything the metadata says the queue has: implemented by the queue
  * @category Metadata
  */
-export type Meta = States & Operations & Events;
+export type Meta = States & Data & Operations & Events;
