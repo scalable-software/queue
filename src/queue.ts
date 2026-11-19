@@ -3,8 +3,8 @@
  */
 
 // Metadata
-import { Order, Condition } from "./queue.meta.js";
-import type { Entry, Items, Meta, Options } from "./queue.meta.js";
+import { Order, Condition, Priority } from "./queue.meta.js";
+import type { Entry, Item, Items, Meta, Options } from "./queue.meta.js";
 
 // Validation
 import { Validate } from "./queue.validation.js";
@@ -82,6 +82,10 @@ export class Queue<T extends object = Record<string, unknown>>
   public get waiting(): Items<T> {
     return this._waiting;
   }
+  private set waiting(items: Items<T>) {
+    // Mutate
+    this._waiting = items;
+  }
 
   /**
    * The items that have been taken and are being worked on, in the order they were taken
@@ -95,5 +99,9 @@ export class Queue<T extends object = Record<string, unknown>>
    * Put an item at its place among the waiting items
    * @category Operations
    */
-  public add = (item: Entry<T>) => {};
+  public add = (item: Entry<T>) => {
+    const added = { ...item, priority: item.priority ?? Priority.LOWEST } as Item<T>;
+
+    this.waiting = [...this.waiting, added];
+  };
 }
