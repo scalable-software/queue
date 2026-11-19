@@ -60,6 +60,17 @@
         }
       ],
       "returns": "void"
+    },
+    "remove": {
+      "description": "Removes the item with the given id, waiting or being worked on. Throws `Invalid id value: <value>` for an id that is not a non-empty string. An id the queue does not hold changes nothing.",
+      "parameters": [
+        {
+          "name": "id",
+          "type": "string",
+          "description": "The id of the item to remove."
+        }
+      ],
+      "returns": "void"
     }
   },
   "Events": {
@@ -100,6 +111,21 @@
           "name": "detail",
           "type": "object",
           "description": "Contains the changed item as the queue holds it.",
+          "properties": {
+            "item": {
+              "type": "Item"
+            }
+          }
+        }
+      ]
+    },
+    "onremove": {
+      "description": "Dispatched when an item is removed.",
+      "parameters": [
+        {
+          "name": "detail",
+          "type": "object",
+          "description": "Contains the item as the queue held it.",
           "properties": {
             "item": {
               "type": "Item"
