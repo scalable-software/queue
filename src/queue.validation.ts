@@ -37,6 +37,11 @@ export class Validate {
     if (typeof value !== "object" || value === null || Array.isArray(value))
       throw new Error(`Invalid item value: ${value}`);
 
+    // Declared fields
+    const { id } = value as Record<string, unknown>;
+
+    if (id === undefined) throw new Error("Invalid item value: id is required");
+
     return value as Entry;
   };
 }
