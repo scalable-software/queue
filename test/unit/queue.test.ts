@@ -776,6 +776,33 @@ operation(Operation.REMOVE, () => {
       });
     });
   });
+
+  and("a queue is created, and `a` is added", () => {
+    let queue: Queue;
+    beforeEach(() => {
+      queue = new Queue();
+      queue.add({ id: "a" });
+    });
+
+    when("`queue.remove(\"\")` is invoked", () => {
+      let error: Error;
+      beforeEach(() => {
+        try {
+          queue.remove("");
+        } catch (err) {
+          error = err as Error;
+        }
+      });
+
+      then("an error is thrown", () => {
+        expect(error).toBeDefined();
+      });
+
+      then("error message is 'Invalid id value: '", () => {
+        expect(error?.message).toBe("Invalid id value: ");
+      });
+    });
+  });
 });
 
 // Event
