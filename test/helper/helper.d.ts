@@ -21,6 +21,7 @@ declare const Metadata: {
   CSS: string;
   ATTRIBUTES: string;
   STATE: string;
+  DATUM: string;
   OPERATION: string;
   EVENT: string;
   GESTURE: string;

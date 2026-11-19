@@ -121,6 +121,7 @@ globalThis.Metadata = {
   CSS: "css",
   ATTRIBUTES: "attributes",
   STATE: "state",
+  DATUM: "datum",
   OPERATION: "operation",
   EVENT: "event",
   GESTURE: "gesture"
