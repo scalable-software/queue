@@ -143,6 +143,10 @@ export class Queue<T extends object = Record<string, unknown>>
 
     // Mutate
     this._condition = condition;
+
+    // Dispatch
+    const detail = { condition };
+    condition === Condition.WAITING && this._dispatch(Event.ON_WAITING, detail);
   }
 
   /**
