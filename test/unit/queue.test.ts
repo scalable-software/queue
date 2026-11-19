@@ -355,4 +355,17 @@ operation(Operation.ADD, () => {
   });
 });
 
+operation(Operation.TAKE, () => {
+  and("a queue is created", () => {
+    let queue: Queue;
+    beforeEach(() => {
+      queue = new Queue();
+    });
+
+    then("`queue.take` exists", () => {
+      expect(queue.take).toBeDefined();
+    });
+  });
+});
+
 // Event

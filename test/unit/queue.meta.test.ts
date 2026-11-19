@@ -198,6 +198,14 @@ metadata(Metadata.OPERATION, () => {
         then("`Operation.ADD` is `add`", () => {
           expect(Operation.ADD).toBe("add");
         });
+
+        then("`Operation.TAKE` exists", () => {
+          expect(Operation.TAKE).toBeDefined();
+        });
+
+        then("`Operation.TAKE` is `take`", () => {
+          expect(Operation.TAKE).toBe("take");
+        });
       });
     });
   });
