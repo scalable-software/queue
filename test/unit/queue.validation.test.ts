@@ -233,3 +233,39 @@ validation("item", () => {
     ]);
   });
 });
+
+// Id
+validation("id", () => {
+  given("Validate is imported", () => {
+    then("`Validate.id` exists", () => {
+      expect(Validate.id).toBeDefined();
+    });
+
+    and("`value` is `a`", () => {
+      let value: unknown;
+      beforeEach(() => {
+        value = "a";
+      });
+
+      when("`Validate.id(value)` is called", () => {
+        let result: unknown;
+        let error: unknown | undefined;
+        beforeEach(() => {
+          try {
+            result = Validate.id(value);
+          } catch (err) {
+            error = err;
+          }
+        });
+
+        then("no error is thrown", () => {
+          expect(error).toBeUndefined();
+        });
+
+        then("`value` is returned", () => {
+          expect(result).toBe(value);
+        });
+      });
+    });
+  });
+});
