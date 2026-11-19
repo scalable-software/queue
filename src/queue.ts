@@ -121,6 +121,13 @@ export class Queue<T extends object = Record<string, unknown>>
   public get working(): Items<T> {
     return this._working;
   }
+  private set working(items: Items<T>) {
+    // Clone
+    items = items.map(this._own);
+
+    // Mutate
+    this._working = Object.freeze(items);
+  }
 
   /**
    * Put an item at its place among the waiting items
@@ -142,7 +149,14 @@ export class Queue<T extends object = Record<string, unknown>>
    * Hand out the next waiting item and move it to the items being worked on; `null` when no item waits
    * @category Operations
    */
-  public take = (): Item<T> | null => null;
+  public take = (): Item<T> | null => {
+    const [item, ...rest] = this.waiting;
+
+    this.waiting = rest;
+    this.working = [...this.working, item];
+
+    return item;
+  };
 
   /**
    * Compare two waiting items: in a priority queue the higher priority comes first,
