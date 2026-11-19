@@ -198,7 +198,8 @@ export class Queue<T extends object = Record<string, unknown>>
    * @category Operations
    */
   public putBack = (id: string) => {
-    const item = this.working.find((item) => item.id === id) as Item<T>;
+    const item = this.working.find((item) => item.id === id);
+    if (!item) return;
 
     this.working = this.working.filter((item) => item.id !== id);
     this.waiting = [...this.waiting, item];
