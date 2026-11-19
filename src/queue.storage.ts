@@ -53,11 +53,18 @@ export class Storage<T extends object = Record<string, unknown>> {
   private _failed = false;
 
   /**
+   * The name of the database
+   * @hidden
+   */
+  private _name: string;
+
+  /**
    * Open the database named `name`, creating it the first time
    * @param onfail - Told once when the browser refuses to open or to write the database
    */
   constructor(name: string, onfail: () => void) {
     this._onfail = onfail;
+    this._name = name;
     this._database = this._open(name).catch(this._fail);
   }
 
@@ -87,6 +94,16 @@ export class Storage<T extends object = Record<string, unknown>> {
    * Remove the stored item with the given id
    */
   public delete = (id: string) => this._write((store) => store.delete(id));
+
+  /**
+   * Delete the database, after every earlier read and write; nothing is written afterwards
+   */
+  public drop = async (): Promise<void> => {
+    const database = await this._database;
+    this._database = Promise.resolve(null);
+    database?.close();
+    await this._request(indexedDB.deleteDatabase(this._name)).catch(() => {});
+  };
 
   /**
    * Write to the items, after every earlier read and write; a write the browser refuses,

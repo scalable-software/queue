@@ -586,6 +586,12 @@ export class Queue<T extends object = Record<string, unknown>>
    */
   public clear = async (): Promise<void> => {
     [...this.waiting, ...this.working].forEach(({ id }) => this.remove(id));
+
+    const storage = this._storage;
+    this._storage = null;
+    this.persisted = false;
+
+    await storage?.drop();
   };
 
   /**
