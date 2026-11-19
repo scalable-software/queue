@@ -36,6 +36,13 @@ metadata(Metadata.STATE, () => {
         then("`State.CONDITION` is `condition`", () => {
           expect(State.CONDITION).toBe("condition");
         });
+
+        then("no state name is taken by `EventTarget`", () => {
+          const taken = Object.values(State).filter(
+            (name) => name in EventTarget.prototype
+          );
+          expect(taken).toEqual([]);
+        });
       });
     });
   });
@@ -141,6 +148,13 @@ metadata(Metadata.DATUM, () => {
         then("`Datum.WORKING` is `working`", () => {
           expect(Datum.WORKING).toBe("working");
         });
+
+        then("no data name is taken by `EventTarget`", () => {
+          const taken = Object.values(Datum).filter(
+            (name) => name in EventTarget.prototype
+          );
+          expect(taken).toEqual([]);
+        });
       });
     });
   });
@@ -237,6 +251,13 @@ metadata(Metadata.OPERATION, () => {
 
         then("`Operation.PUT_BACK` is `putBack`", () => {
           expect(Operation.PUT_BACK).toBe("putBack");
+        });
+
+        then("no operation name is taken by `EventTarget`", () => {
+          const taken = Object.values(Operation).filter(
+            (name) => name in EventTarget.prototype
+          );
+          expect(taken).toEqual([]);
         });
       });
     });
