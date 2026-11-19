@@ -79,3 +79,37 @@ validation("options", () => {
     });
   });
 });
+
+validation("options", () => {
+  given("Validate is imported", () => {
+    [{ order: "invalid" }, { order: null }].forEach((options) => {
+      and(`\`value\` is \`${JSON.stringify(options)}\``, () => {
+        let value: any;
+        beforeEach(() => {
+          value = options;
+        });
+
+        when("`Validate.options(value)` is called", () => {
+          let error: unknown | undefined;
+          beforeEach(() => {
+            try {
+              Validate.options(value);
+            } catch (err) {
+              error = err;
+            }
+          });
+
+          then("an error is thrown", () => {
+            expect(error).not.toBeUndefined();
+          });
+
+          then("error message is 'Invalid options value: order is invalid'", () => {
+            expect((error as Error).message).toEqual(
+              "Invalid options value: order is invalid"
+            );
+          });
+        });
+      });
+    });
+  });
+});
