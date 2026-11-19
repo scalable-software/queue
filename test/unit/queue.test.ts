@@ -33,6 +33,14 @@ state(State.ORDER, () => {
     then("`queue.order` is `Order.FIFO`", () => {
       expect(queue.order).toBe(Order.FIFO);
     });
+
+    then("assigning `queue.order` does not compile", () => {
+      const assign = () => {
+        // @ts-expect-error: `order` is chosen when the queue is created
+        queue.order = Order.PRIORITY;
+      };
+      expect(assign).toEqual(jasmine.any(Function));
+    });
   });
 
   given("a queue is created with `{ order: Order.PRIORITY }`", () => {
