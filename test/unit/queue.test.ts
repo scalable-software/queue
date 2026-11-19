@@ -317,6 +317,33 @@ state(State.READY, () => {
       });
     });
   });
+
+  given("a queue with `storage` holds `a` with `file` `report.pdf`, and `b`", () => {
+    let storage: string;
+    let second: Queue;
+    beforeEach(async () => {
+      storage = unique();
+      const first = await reopen(storage);
+      first.add({ id: "a", file: "report.pdf" });
+      first.add({ id: "b" });
+    });
+    afterEach(() => drop(storage));
+
+    when("a second queue with the same `storage` adds `a` with `file` `summary.pdf` before it is ready", () => {
+      beforeEach(async () => {
+        second = new Queue({ storage });
+        second.add({ id: "a", file: "summary.pdf" });
+        await ready(second);
+      });
+
+      then("its `waiting` holds `b`, then the `a` it added", () => {
+        expect(second.waiting).toEqual([
+          { id: "b", priority: Priority.LOWEST },
+          { id: "a", file: "summary.pdf", priority: Priority.LOWEST }
+        ]);
+      });
+    });
+  });
 });
 
 state(State.PERSISTED, () => {
