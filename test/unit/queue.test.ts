@@ -422,6 +422,26 @@ operation(Operation.TAKE, () => {
       });
     });
   });
+
+  and("a queue is created, and `a` then `b` are added", () => {
+    let queue: Queue;
+    beforeEach(() => {
+      queue = new Queue();
+      queue.add({ id: "a" });
+      queue.add({ id: "b" });
+    });
+
+    when("`queue.take()` is invoked three times", () => {
+      let results: (Item | null)[];
+      beforeEach(() => {
+        results = [queue.take(), queue.take(), queue.take()];
+      });
+
+      then("`a`, `b`, then `null` are returned", () => {
+        expect(results.map((item) => item?.id ?? null)).toEqual(["a", "b", null]);
+      });
+    });
+  });
 });
 
 // Event
