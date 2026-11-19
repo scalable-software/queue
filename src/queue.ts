@@ -167,6 +167,8 @@ export class Queue<T extends object = Record<string, unknown>>
 
     this.waiting = [...this.waiting, added];
 
+    this._dispatch(Event.ON_ADD, { item: this._find(item.id) });
+
     this._syncCondition();
   };
 
@@ -237,6 +239,16 @@ export class Queue<T extends object = Record<string, unknown>>
 
     this._syncCondition();
   };
+
+  /**
+   * Dispatch an event from the queue with its detail
+   * @param event - The name of the event
+   * @param detail - The event's detail
+   * @returns `false` when a listener cancelled the event; otherwise `true`
+   * @hidden
+   */
+  private _dispatch = (event: string, detail: unknown): boolean =>
+    this.dispatchEvent(new CustomEvent(event, { detail }));
 
   /**
    * Replace the handler of an event: remove the current one, then add the next one.
