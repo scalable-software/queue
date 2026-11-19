@@ -67,9 +67,14 @@ export class Storage<T extends object = Record<string, unknown>> {
   public read = async (): Promise<Stored<T>[]> => {
     const database = await this._database;
     if (!database) return [];
-    return this._request<Stored<T>[]>(
-      database.transaction(ITEMS, "readonly").objectStore(ITEMS).getAll()
-    );
+    try {
+      return await this._request<Stored<T>[]>(
+        database.transaction(ITEMS, "readonly").objectStore(ITEMS).getAll()
+      );
+    } catch {
+      this._fail();
+      return [];
+    }
   };
 
   /**
