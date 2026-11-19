@@ -201,6 +201,9 @@ export class Queue<T extends object = Record<string, unknown>>
 
     // Mutate
     this._ready = ready;
+
+    // Dispatch
+    ready && this._dispatch(Event.ON_READY, { ready });
   }
 
   /**
