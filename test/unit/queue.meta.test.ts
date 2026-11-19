@@ -222,6 +222,14 @@ metadata(Metadata.OPERATION, () => {
         then("`Operation.UPDATE` is `update`", () => {
           expect(Operation.UPDATE).toBe("update");
         });
+
+        then("`Operation.REMOVE` exists", () => {
+          expect(Operation.REMOVE).toBeDefined();
+        });
+
+        then("`Operation.REMOVE` is `remove`", () => {
+          expect(Operation.REMOVE).toBe("remove");
+        });
       });
     });
   });

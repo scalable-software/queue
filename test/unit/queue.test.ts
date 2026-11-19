@@ -704,4 +704,17 @@ operation(Operation.UPDATE, () => {
   });
 });
 
+operation(Operation.REMOVE, () => {
+  and("a queue is created", () => {
+    let queue: Queue;
+    beforeEach(() => {
+      queue = new Queue();
+    });
+
+    then("`queue.remove` exists", () => {
+      expect(queue.remove).toBeDefined();
+    });
+  });
+});
+
 // Event
