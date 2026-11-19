@@ -9,6 +9,7 @@ declare function utility(utility: string, fn: () => void): void;
 declare function composition(composition: string, fn: () => void): void;
 declare function element(element: string, fn: () => void): void;
 declare function state(state: string, fn: () => void): void;
+declare function data(data: string, fn: () => void): void;
 declare function operation(operation: string, fn: () => void): void;
 declare function events(event: string, fn: () => void): void;
 declare function gesture(gesture: string, fn: () => void): void;
@@ -20,6 +21,7 @@ declare const Metadata: {
   CSS: string;
   ATTRIBUTES: string;
   STATE: string;
+  DATUM: string;
   OPERATION: string;
   EVENT: string;
   GESTURE: string;
@@ -50,3 +52,4 @@ declare function add<T extends Element>(
 ): T;
 declare function remove(id: string): void;
 declare function hasSetter(obj: any, propName: string): boolean;
+declare function hasGetter(obj: any, propName: string): boolean;

@@ -2,6 +2,7 @@
 <html>
   <head>
     <title>Queue</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
     <link rel="icon" href="favicon.ico" type="image/x-icon" />
     <link rel="stylesheet" href="html.style.css" />
 
@@ -10,6 +11,59 @@
   </head>
 
   <body>
+    <header class="stage">
+      <h1>Queue</h1>
+      <p>
+        A reactive queue add-on: it has no appearance, so this page shows its
+        items, its states and the events it dispatches.
+      </p>
+    </header>
+
+    <main class="controls">
+      <section class="group" aria-labelledby="data-title">
+        <h2 id="data-title">Data</h2>
+        <form id="item" class="fields">
+          <label>id <input name="id" required placeholder="report" /></label>
+          <label>
+            priority
+            <input name="priority" type="number" min="1" max="10" placeholder="1" />
+          </label>
+          <label>file <input name="file" placeholder="report.pdf" /></label>
+        </form>
+        <p class="hint">
+          <code>add</code> and <code>update</code> use this item;
+          <code>remove</code> and <code>putBack</code> use its id.
+        </p>
+        <h3>waiting</h3>
+        <pre id="waiting"></pre>
+        <h3>working</h3>
+        <pre id="working"></pre>
+      </section>
+
+      <section class="group" aria-labelledby="operations-title">
+        <h2 id="operations-title">Operations</h2>
+        <div id="operations" class="buttons"></div>
+        <p class="hint">Returned: <code id="returned">—</code></p>
+        <p id="error" class="error" role="alert"></p>
+      </section>
+
+      <section class="group" aria-labelledby="states-title">
+        <h2 id="states-title">States</h2>
+        <label>
+          order
+          <select id="order"></select>
+        </label>
+        <p class="hint">Chosen when the queue is created: changing it creates a new, empty queue.</p>
+        <p>condition <output id="condition"></output> <span class="readonly">readonly</span></p>
+      </section>
+
+      <section class="group" aria-labelledby="events-title">
+        <h2 id="events-title">Events</h2>
+        <button id="clear" type="button">Clear</button>
+        <ol id="log" class="log"></ol>
+      </section>
+    </main>
+
     <script src="index.js" type="module"></script>
   </body>
 </html>
