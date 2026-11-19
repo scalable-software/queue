@@ -54,3 +54,10 @@ waiting item and have it marked as being worked on, so that no item is handed ou
 
 As a **host component**, when I want to know what comes next, I want to see the next waiting
 item without taking it, so that I can decide before I start on it.
+
+### STORY: Order of Work
+
+As a **host component**, when some work is more urgent than other work, I want the queue to
+hand out the highest priority first, and the earliest added first among equals, so that
+urgent work is done first; and when I do not ask for this, I want the first item in to be the
+first out, so that work is done in the order it arrived.
