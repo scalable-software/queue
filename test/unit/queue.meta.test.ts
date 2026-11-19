@@ -301,6 +301,14 @@ metadata(Metadata.EVENT, () => {
           expect(Event.ON_UPDATE).toBe("onupdate");
         });
 
+        then("`Event.ON_REMOVE` exists", () => {
+          expect(Event.ON_REMOVE).toBeDefined();
+        });
+
+        then("`Event.ON_REMOVE` is `onremove`", () => {
+          expect(Event.ON_REMOVE).toBe("onremove");
+        });
+
         then("no event name is taken by `EventTarget`", () => {
           const taken = Object.values(Event).filter(
             (name) => name in EventTarget.prototype

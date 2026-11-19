@@ -1219,3 +1219,16 @@ events(Event.ON_UPDATE, () => {
     });
   });
 });
+
+events(Event.ON_REMOVE, () => {
+  and("a queue is created", () => {
+    let queue: Queue;
+    beforeEach(() => {
+      queue = new Queue();
+    });
+
+    then("`queue.onremove` setter exists", () => {
+      expect(hasSetter(queue, Event.ON_REMOVE)).toBe(true);
+    });
+  });
+});
