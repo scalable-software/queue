@@ -218,6 +218,8 @@ export class Queue<T extends object = Record<string, unknown>>
 
     this.working = this.working.filter((item) => item.id !== id);
     this.waiting = [...this.waiting, item];
+
+    this._syncCondition();
   };
 
   /**
