@@ -323,7 +323,9 @@ export class Queue<T extends object = Record<string, unknown>>
     if (!this._find(item.id)) return;
 
     const change = (stored: Item<T>) =>
-      stored.id === item.id ? ({ ...stored, ...item } as Item<T>) : stored;
+      stored.id === item.id
+        ? ({ ...stored, ...item, priority: item.priority ?? stored.priority } as Item<T>)
+        : stored;
 
     this.waiting = this.waiting.map(change);
     this.working = this.working.map(change);
