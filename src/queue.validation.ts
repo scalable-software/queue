@@ -14,6 +14,10 @@ export class Validate {
    * @category Validation
    */
   public static options = (value: unknown) => {
+    // Structure
+    if (typeof value !== "object" || value === null || Array.isArray(value))
+      throw new Error(`Invalid options value: ${value}`);
+
     return value as Options;
   };
 }
