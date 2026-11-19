@@ -1,4 +1,12 @@
-import { Queue, State, Order, Condition, Datum } from "@scalable.software/queue";
+import {
+  Queue,
+  State,
+  Order,
+  Condition,
+  Datum,
+  Priority,
+  Operation
+} from "@scalable.software/queue";
 
 // Configuration
 given("Queue imported", () => {
@@ -168,5 +176,17 @@ data(Datum.WORKING, () => {
 });
 
 // Operation
+operation(Operation.ADD, () => {
+  and("a queue is created", () => {
+    let queue: Queue;
+    beforeEach(() => {
+      queue = new Queue();
+    });
+
+    then("`queue.add` exists", () => {
+      expect(queue.add).toBeDefined();
+    });
+  });
+});
 
 // Event

@@ -189,6 +189,16 @@ metadata(Metadata.OPERATION, () => {
       then("Operation is an object", () => {
         expect(typeof Operation).toBe("object");
       });
+
+      when("Operation is an object", () => {
+        then("`Operation.ADD` exists", () => {
+          expect(Operation.ADD).toBeDefined();
+        });
+
+        then("`Operation.ADD` is `add`", () => {
+          expect(Operation.ADD).toBe("add");
+        });
+      });
     });
   });
 });
