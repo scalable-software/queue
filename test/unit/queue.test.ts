@@ -805,4 +805,17 @@ operation(Operation.REMOVE, () => {
   });
 });
 
+operation(Operation.PUT_BACK, () => {
+  and("a queue is created", () => {
+    let queue: Queue;
+    beforeEach(() => {
+      queue = new Queue();
+    });
+
+    then("`queue.putBack` exists", () => {
+      expect(queue.putBack).toBeDefined();
+    });
+  });
+});
+
 // Event

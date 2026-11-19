@@ -230,6 +230,14 @@ metadata(Metadata.OPERATION, () => {
         then("`Operation.REMOVE` is `remove`", () => {
           expect(Operation.REMOVE).toBe("remove");
         });
+
+        then("`Operation.PUT_BACK` exists", () => {
+          expect(Operation.PUT_BACK).toBeDefined();
+        });
+
+        then("`Operation.PUT_BACK` is `putBack`", () => {
+          expect(Operation.PUT_BACK).toBe("putBack");
+        });
       });
     });
   });
