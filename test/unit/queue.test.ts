@@ -596,6 +596,29 @@ operation(Operation.UPDATE, () => {
       });
     });
   });
+
+  and("a queue is created, and `a` is added and taken", () => {
+    let queue: Queue;
+    beforeEach(() => {
+      queue = new Queue();
+      queue.add({ id: "a", file: "report.pdf" });
+      queue.take();
+    });
+
+    when("`queue.update({ id: \"a\", file: \"summary.pdf\" })` is invoked", () => {
+      beforeEach(() => {
+        queue.update({ id: "a", file: "summary.pdf" });
+      });
+
+      then("`queue.working[0].file` is `summary.pdf`", () => {
+        expect(queue.working[0].file).toBe("summary.pdf");
+      });
+
+      then("`queue.waiting` is empty", () => {
+        expect(queue.waiting).toEqual([]);
+      });
+    });
+  });
 });
 
 // Event
