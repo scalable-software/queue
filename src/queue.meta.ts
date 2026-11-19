@@ -136,7 +136,8 @@ export type Operation = (typeof Operation)[keyof typeof Operation];
  * @enum
  */
 export const Event = {
-  ON_ADD: "onadd"
+  ON_ADD: "onadd",
+  ON_TAKE: "ontake"
 } as const;
 
 /**

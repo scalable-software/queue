@@ -75,6 +75,13 @@ export class Queue<T extends object = Record<string, unknown>>
   private _onadd: EventListener | null = null;
 
   /**
+   * The handler of `ontake`
+   * @category Events
+   * @hidden
+   */
+  private _ontake: EventListener | null = null;
+
+  /**
    * Create a queue; `options.order` chooses the order in which it hands out its items
    * @category Lifecycle
    */
@@ -150,6 +157,15 @@ export class Queue<T extends object = Record<string, unknown>>
    */
   public set onadd(handler: EventListener | null) {
     this._onadd = this._subscribe(Event.ON_ADD, this._onadd, handler);
+  }
+
+  /**
+   * Dispatched when an item is taken and is being worked on, with the item as the queue holds it in `detail.item`
+   * @event
+   * @category Events
+   */
+  public set ontake(handler: EventListener | null) {
+    this._ontake = this._subscribe(Event.ON_TAKE, this._ontake, handler);
   }
 
   /**
