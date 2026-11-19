@@ -649,6 +649,28 @@ operation(Operation.UPDATE, () => {
       });
     });
   });
+
+  and("a queue is created, and `a` is added", () => {
+    let queue: Queue;
+    beforeEach(() => {
+      queue = new Queue();
+      queue.add({ id: "a" });
+    });
+
+    when("`queue.update({ id: \"z\", file: \"summary.pdf\" })` is invoked", () => {
+      beforeEach(() => {
+        queue.update({ id: "z", file: "summary.pdf" });
+      });
+
+      then("`queue.waiting` holds only `a`, unchanged", () => {
+        expect(queue.waiting).toEqual([{ id: "a", priority: Priority.LOWEST }]);
+      });
+
+      then("`queue.working` is empty", () => {
+        expect(queue.working).toEqual([]);
+      });
+    });
+  });
 });
 
 // Event
