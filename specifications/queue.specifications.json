@@ -47,6 +47,16 @@
       ],
       "default": false,
       "readonly": true
+    },
+    "persisted": {
+      "type": "Persisted",
+      "description": "Whether the queue's items survive a reload: `true` once the database named by `storage` is open, and `false` without `storage`, after `clear()`, or when the browser refuses to open or to write the database. When it refuses, the queue goes on in memory and stops writing.",
+      "values": [
+        false,
+        true
+      ],
+      "default": false,
+      "readonly": true
     }
   },
   "Operations": {
@@ -247,6 +257,24 @@
               "type": "Ready",
               "values": [
                 true
+              ]
+            }
+          }
+        }
+      ]
+    },
+    "onunavailable": {
+      "description": "Dispatched once, when the browser refuses to open or to write the database named by `storage`: the items will not survive a reload. Not dispatched for a queue without `storage`, nor after `clear()`.",
+      "parameters": [
+        {
+          "name": "detail",
+          "type": "object",
+          "description": "Contains the new persisted state of the queue.",
+          "properties": {
+            "persisted": {
+              "type": "Persisted",
+              "values": [
+                false
               ]
             }
           }
