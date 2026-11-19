@@ -408,6 +408,30 @@ data(Datum.WORKING, () => {
       expect(queue.working).toEqual([]);
     });
   });
+
+  given("a queue with `storage` is ready, `a` and `b` are added, and `a` is taken", () => {
+    let storage: string;
+    let second: Queue;
+    beforeEach(async () => {
+      storage = unique();
+      const first = new Queue({ storage });
+      await ready(first);
+      first.add({ id: "a" });
+      first.add({ id: "b" });
+      first.take();
+      second = new Queue({ storage });
+      await ready(second);
+    });
+    afterEach(() => drop(storage));
+
+    then("a second queue with the same `storage` has `a` in `working`", () => {
+      expect(second.working.map(({ id }) => id)).toEqual(["a"]);
+    });
+
+    then("a second queue with the same `storage` has `b` in `waiting`", () => {
+      expect(second.waiting.map(({ id }) => id)).toEqual(["b"]);
+    });
+  });
 });
 
 // Operation
