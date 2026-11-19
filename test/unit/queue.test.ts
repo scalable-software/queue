@@ -301,6 +301,37 @@ operation(Operation.ADD, () => {
         expect(queue.waiting).toEqual([]);
       });
     });
+
+    and("`a` is waiting", () => {
+      beforeEach(() => {
+        queue.add({ id: "a", file: "report.pdf" });
+      });
+
+      when("`queue.add({ id: \"a\" })` is invoked", () => {
+        let error: Error;
+        beforeEach(() => {
+          try {
+            queue.add({ id: "a" });
+          } catch (err) {
+            error = err as Error;
+          }
+        });
+
+        then("an error is thrown", () => {
+          expect(error).toBeDefined();
+        });
+
+        then("error message is 'Invalid item value: id is already in the queue'", () => {
+          expect(error?.message).toBe("Invalid item value: id is already in the queue");
+        });
+
+        then("`queue.waiting` holds only the first `a`", () => {
+          expect(queue.waiting).toEqual([
+            { id: "a", file: "report.pdf", priority: Priority.LOWEST }
+          ]);
+        });
+      });
+    });
   });
 });
 
