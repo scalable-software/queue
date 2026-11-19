@@ -1422,4 +1422,28 @@ events(Event.ON_EMPTY, () => {
       expect(hasSetter(queue, Event.ON_EMPTY)).toBe(true);
     });
   });
+
+  and("a queue is created, `a` is added and taken, and `queue.onempty` is assigned a listener", () => {
+    let queue: Queue;
+    let onempty: jasmine.Spy;
+    beforeEach(() => {
+      queue = new Queue();
+      queue.add({ id: "a" });
+      queue.take();
+      onempty = jasmine.createSpy("onempty");
+      queue.onempty = onempty;
+    });
+
+    when("`a` is removed", () => {
+      beforeEach(() => {
+        queue.remove("a");
+      });
+
+      then("the listener is called with `detail.condition` `Condition.EMPTY`", () => {
+        expect(onempty).toHaveBeenCalledOnceWith(
+          jasmine.objectContaining({ detail: { condition: Condition.EMPTY } })
+        );
+      });
+    });
+  });
 });
