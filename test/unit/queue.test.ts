@@ -213,6 +213,18 @@ operation(Operation.ADD, () => {
         expect(queue.waiting[0].priority).toBe(7);
       });
     });
+
+    when("`a`, `b` with priority 10, and `c` are added", () => {
+      beforeEach(() => {
+        queue.add({ id: "a" });
+        queue.add({ id: "b", priority: 10 });
+        queue.add({ id: "c" });
+      });
+
+      then("`queue.waiting` holds `a`, `b`, then `c`", () => {
+        expect(queue.waiting.map(({ id }) => id)).toEqual(["a", "b", "c"]);
+      });
+    });
   });
 });
 
