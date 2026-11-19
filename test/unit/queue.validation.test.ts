@@ -41,3 +41,41 @@ validation("options", () => {
     });
   });
 });
+
+validation("options", () => {
+  given("Validate is imported", () => {
+    const invalid: [unknown, string][] = [
+      ["fifo", "Invalid options value: fifo"],
+      [null, "Invalid options value: null"],
+      [1, "Invalid options value: 1"]
+    ];
+
+    invalid.forEach(([invalid, message]) => {
+      and(`\`value\` is \`${invalid}\``, () => {
+        let value: any;
+        beforeEach(() => {
+          value = invalid;
+        });
+
+        when("`Validate.options(value)` is called", () => {
+          let error: unknown | undefined;
+          beforeEach(() => {
+            try {
+              Validate.options(value);
+            } catch (err) {
+              error = err;
+            }
+          });
+
+          then("an error is thrown", () => {
+            expect(error).not.toBeUndefined();
+          });
+
+          then(`error message is '${message}'`, () => {
+            expect((error as Error).message).toEqual(message);
+          });
+        });
+      });
+    });
+  });
+});
