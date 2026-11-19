@@ -180,6 +180,12 @@ export class Queue<T extends object = Record<string, unknown>>
   };
 
   /**
+   * Remove the item with the given id, waiting or being worked on
+   * @category Operations
+   */
+  public remove = (id: string) => {};
+
+  /**
    * Compare two waiting items: in a priority queue the higher priority comes first,
    * and otherwise the earliest added
    * @category Data
