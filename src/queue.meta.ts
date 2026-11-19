@@ -122,6 +122,7 @@ export type Persisted = boolean;
  */
 export type Options = {
   order?: Order;
+  storage?: string;
 };
 
 /**

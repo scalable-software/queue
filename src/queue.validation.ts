@@ -20,10 +20,13 @@ export class Validate {
       throw new Error(`Invalid options value: ${value}`);
 
     // Declared fields
-    const { order } = value as Record<string, unknown>;
+    const { order, storage } = value as Record<string, unknown>;
 
     if (order !== undefined && !Object.values(Order).includes(order as Order))
       throw new Error("Invalid options value: order is invalid");
+
+    if (storage !== undefined && (typeof storage !== "string" || storage === ""))
+      throw new Error("Invalid options value: storage is invalid");
 
     return value as Options;
   };
