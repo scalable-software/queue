@@ -1,4 +1,4 @@
-import { State, Order, Condition, Operation, Event } from "@scalable.software/queue";
+import { State, Order, Condition, Datum, Operation, Event } from "@scalable.software/queue";
 
 // State
 metadata(Metadata.STATE, () => {
@@ -99,6 +99,31 @@ metadata(State.CONDITION, () => {
 
         then("`Condition.BUSY` is `busy`", () => {
           expect(Condition.BUSY).toBe("busy");
+        });
+      });
+    });
+  });
+});
+
+// Datum
+metadata(Metadata.DATUM, () => {
+  and("Datum imported", () => {
+    then("Datum is defined", () => {
+      expect(Datum).toBeDefined();
+    });
+
+    when("Datum is defined", () => {
+      then("Datum is an object", () => {
+        expect(typeof Datum).toBe("object");
+      });
+
+      when("Datum is an object", () => {
+        then("`Datum.WAITING` exists", () => {
+          expect(Datum.WAITING).toBeDefined();
+        });
+
+        then("`Datum.WAITING` is `waiting`", () => {
+          expect(Datum.WAITING).toBe("waiting");
         });
       });
     });

@@ -1,4 +1,4 @@
-import { Queue, State, Order, Condition } from "@scalable.software/queue";
+import { Queue, State, Order, Condition, Datum } from "@scalable.software/queue";
 
 // Configuration
 given("Queue imported", () => {
@@ -133,6 +133,22 @@ state(State.CONDITION, () => {
 });
 
 // Data
+data(Datum.WAITING, () => {
+  given("a queue is created", () => {
+    let queue: Queue;
+    beforeEach(() => {
+      queue = new Queue();
+    });
+
+    then("`queue.waiting` getter exists", () => {
+      expect(hasGetter(queue, Datum.WAITING)).toBe(true);
+    });
+
+    then("`queue.waiting` is empty", () => {
+      expect(queue.waiting).toEqual([]);
+    });
+  });
+});
 
 // Operation
 
