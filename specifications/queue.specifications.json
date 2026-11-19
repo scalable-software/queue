@@ -37,6 +37,16 @@
       ],
       "default": "empty",
       "readonly": true
+    },
+    "ready": {
+      "type": "Ready",
+      "description": "Whether the queue has its stored items back. `false` when the queue is created; `true` once its stored items are restored, after the constructor has returned, with or without `storage`. Items added before then are kept, after the restored items; a restored item whose id the queue already holds is not restored. Operations work at any time.",
+      "values": [
+        false,
+        true
+      ],
+      "default": false,
+      "readonly": true
     }
   },
   "Operations": {
@@ -219,6 +229,24 @@
               "type": "Condition",
               "values": [
                 "busy"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    "onready": {
+      "description": "Dispatched once, when `ready` becomes `true`, before the condition event that the restored items cause. No `onadd` is dispatched for a restored item.",
+      "parameters": [
+        {
+          "name": "detail",
+          "type": "object",
+          "description": "Contains the new ready state of the queue.",
+          "properties": {
+            "ready": {
+              "type": "Ready",
+              "values": [
+                true
               ]
             }
           }
