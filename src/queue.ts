@@ -4,7 +4,7 @@
 
 // Metadata
 import { Order, Condition } from "./queue.meta.js";
-import type { Items, Meta, Options } from "./queue.meta.js";
+import type { Entry, Items, Meta, Options } from "./queue.meta.js";
 
 // Validation
 import { Validate } from "./queue.validation.js";
@@ -90,4 +90,10 @@ export class Queue<T extends object = Record<string, unknown>>
   public get working(): Items<T> {
     return this._working;
   }
+
+  /**
+   * Put an item at its place among the waiting items
+   * @category Operations
+   */
+  public add = (item: Entry<T>) => {};
 }

@@ -115,7 +115,9 @@ export type Options = {
  * @category Metadata: Operations
  * @enum
  */
-export const Operation = {} as const;
+export const Operation = {
+  ADD: "add"
+} as const;
 
 /**
  * Operation names exposed by the Queue public API
