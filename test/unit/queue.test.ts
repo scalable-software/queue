@@ -1899,3 +1899,16 @@ events(Event.ON_READY, () => {
     });
   });
 });
+
+events(Event.ON_UNAVAILABLE, () => {
+  and("a queue is created", () => {
+    let queue: Queue;
+    beforeEach(() => {
+      queue = new Queue();
+    });
+
+    then("`queue.onunavailable` setter exists", () => {
+      expect(hasSetter(queue, Event.ON_UNAVAILABLE)).toBe(true);
+    });
+  });
+});

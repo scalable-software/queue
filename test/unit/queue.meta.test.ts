@@ -365,6 +365,14 @@ metadata(Metadata.EVENT, () => {
           expect(Event.ON_READY).toBe("onready");
         });
 
+        then("`Event.ON_UNAVAILABLE` exists", () => {
+          expect(Event.ON_UNAVAILABLE).toBeDefined();
+        });
+
+        then("`Event.ON_UNAVAILABLE` is `onunavailable`", () => {
+          expect(Event.ON_UNAVAILABLE).toBe("onunavailable");
+        });
+
         then("no event name is taken by `EventTarget`", () => {
           const taken = Object.values(Event).filter(
             (name) => name in EventTarget.prototype
