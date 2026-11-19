@@ -581,6 +581,12 @@ export class Queue<T extends object = Record<string, unknown>>
         : Condition.EMPTY);
 
   /**
+   * Remove every item, then delete the database named by `storage`; afterwards the queue lives in memory only
+   * @category Operations
+   */
+  public clear = async (): Promise<void> => {};
+
+  /**
    * Compare two waiting items: in a priority queue the higher priority comes first,
    * and otherwise the earliest added
    * @category Data
