@@ -1197,4 +1197,25 @@ events(Event.ON_UPDATE, () => {
       });
     });
   });
+
+  and("a queue is created, `a` is added, and `queue.onupdate` is assigned a listener", () => {
+    let queue: Queue;
+    let onupdate: jasmine.Spy;
+    beforeEach(() => {
+      queue = new Queue();
+      queue.add({ id: "a" });
+      onupdate = jasmine.createSpy("onupdate");
+      queue.onupdate = onupdate;
+    });
+
+    when("`queue.update({ id: \"z\" })` is invoked", () => {
+      beforeEach(() => {
+        queue.update({ id: "z" });
+      });
+
+      then("the listener is not called", () => {
+        expect(onupdate).not.toHaveBeenCalled();
+      });
+    });
+  });
 });
