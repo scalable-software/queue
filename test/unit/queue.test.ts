@@ -1172,4 +1172,29 @@ events(Event.ON_UPDATE, () => {
       expect(hasSetter(queue, Event.ON_UPDATE)).toBe(true);
     });
   });
+
+  and("a queue is created, `a` is added, and `queue.onupdate` is assigned a listener", () => {
+    let queue: Queue;
+    let onupdate: jasmine.Spy;
+    beforeEach(() => {
+      queue = new Queue();
+      queue.add({ id: "a" });
+      onupdate = jasmine.createSpy("onupdate");
+      queue.onupdate = onupdate;
+    });
+
+    when("`queue.update({ id: \"a\", file: \"summary.pdf\" })` is invoked", () => {
+      beforeEach(() => {
+        queue.update({ id: "a", file: "summary.pdf" });
+      });
+
+      then("the listener is called once", () => {
+        expect(onupdate).toHaveBeenCalledTimes(1);
+      });
+
+      then("`detail.item` is the changed item as the queue holds it", () => {
+        expect(onupdate.calls.mostRecent().args[0].detail.item).toBe(queue.waiting[0]);
+      });
+    });
+  });
 });
