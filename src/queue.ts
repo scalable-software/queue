@@ -147,6 +147,8 @@ export class Queue<T extends object = Record<string, unknown>>
     const { order } = Validate.options(options);
 
     this._order = order ?? Order.FIFO;
+
+    queueMicrotask(this._restore);
   }
 
   /**
@@ -185,6 +187,13 @@ export class Queue<T extends object = Record<string, unknown>>
    */
   public get ready(): Ready {
     return this._ready;
+  }
+  private set ready(ready: Ready) {
+    // Guard
+    if (this._ready === ready) return;
+
+    // Mutate
+    this._ready = ready;
   }
 
   /**
@@ -434,6 +443,15 @@ export class Queue<T extends object = Record<string, unknown>>
     current && this.removeEventListener(event, current);
     next && this.addEventListener(event, next as EventListener);
     return next as EventListener | null;
+  };
+
+  /**
+   * Bring the stored items back, then make the queue ready
+   * @category Data
+   * @hidden
+   */
+  private _restore = () => {
+    this.ready = true;
   };
 
   /**
