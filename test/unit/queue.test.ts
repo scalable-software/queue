@@ -503,6 +503,34 @@ operation(Operation.PEEK, () => {
       expect(queue.peek).toBeDefined();
     });
   });
+
+  and("a queue is created, and `a` then `b` are added", () => {
+    let queue: Queue;
+    beforeEach(() => {
+      queue = new Queue();
+      queue.add({ id: "a" });
+      queue.add({ id: "b" });
+    });
+
+    when("`queue.peek()` is invoked", () => {
+      let result: Item | null;
+      beforeEach(() => {
+        result = queue.peek();
+      });
+
+      then("`queue.waiting[0]` is returned", () => {
+        expect(result).toBe(queue.waiting[0]);
+      });
+
+      then("`queue.waiting` still holds `a` and `b`", () => {
+        expect(queue.waiting.map(({ id }) => id)).toEqual(["a", "b"]);
+      });
+
+      then("`queue.working` is empty", () => {
+        expect(queue.working).toEqual([]);
+      });
+    });
+  });
 });
 
 // Event
