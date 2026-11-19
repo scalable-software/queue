@@ -1112,3 +1112,16 @@ events(Event.ON_ADD, () => {
     });
   });
 });
+
+events(Event.ON_TAKE, () => {
+  and("a queue is created", () => {
+    let queue: Queue;
+    beforeEach(() => {
+      queue = new Queue();
+    });
+
+    then("`queue.ontake` setter exists", () => {
+      expect(hasSetter(queue, Event.ON_TAKE)).toBe(true);
+    });
+  });
+});
